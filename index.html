@@ -2,15 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ahorcado Moderno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ahorcado Moderno Responsivo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Reset y variables CSS */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         :root {
@@ -25,105 +27,225 @@
             --gray: #6c757d;
             --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --border-radius: 20px;
         }
         
+        /* Estilos base del body */
         body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: var(--light);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
         }
         
+        html {
+            height: -webkit-fill-available;
+            overflow-x: hidden;
+        }
+        
+        /* Contenedor principal con relación de aspecto fija en móviles */
         .container {
             max-width: 1200px;
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 25px;
+            max-height: 90vh;
+            min-height: 600px;
         }
         
-        @media (max-width: 900px) {
+        /* Responsividad completa */
+        @media (max-width: 1100px) {
             .container {
                 grid-template-columns: 1fr;
+                max-height: none;
+                min-height: auto;
+                gap: 20px;
+            }
+            
+            .game-card {
+                max-height: none;
+                overflow-y: visible;
             }
         }
         
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                min-height: 100vh;
+                min-height: -webkit-fill-available;
+            }
+            
+            .container {
+                gap: 15px;
+                max-height: none;
+                min-height: auto;
+            }
+            
+            .game-card {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .game-card {
+                padding: 15px 10px;
+                border-radius: 12px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Tarjetas del juego */
         .game-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: var(--border-radius);
+            padding: 25px;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+            max-height: 85vh;
         }
         
+        .game-card::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .game-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .game-card::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 20px;
+        }
+        
+        /* Cabecera */
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         h1 {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            line-height: 1.2;
         }
         
         .subtitle {
             color: var(--gray);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
+        /* Información del juego */
         .game-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
             background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
+            gap: 10px;
         }
         
         .info-item {
             text-align: center;
+            flex: 1;
+            min-width: 100px;
         }
         
         .info-label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--gray);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         
         .info-value {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: var(--success);
         }
         
+        @media (max-width: 600px) {
+            .info-item {
+                min-width: 70px;
+            }
+            
+            .info-value {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* Contenedor de palabras */
         .word-container {
             text-align: center;
-            margin: 40px 0;
-            min-height: 80px;
+            margin: 30px 0;
+            min-height: 70px;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
         }
         
         .letter {
-            display: inline-block;
-            font-size: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
             font-weight: bold;
-            margin: 0 8px;
-            width: 50px;
-            height: 60px;
-            line-height: 60px;
+            margin: 0 5px;
+            width: 40px;
+            height: 50px;
             text-transform: uppercase;
             border-bottom: 4px solid var(--primary);
             transition: var(--transition);
+        }
+        
+        @media (max-width: 768px) {
+            .letter {
+                font-size: 1.8rem;
+                width: 35px;
+                height: 45px;
+                margin: 0 3px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .letter {
+                font-size: 1.6rem;
+                width: 30px;
+                height: 40px;
+                margin: 0 2px;
+            }
         }
         
         .revealed {
@@ -131,37 +253,67 @@
             transform: translateY(-5px);
         }
         
+        /* Teclado responsivo */
         .keyboard {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
-            gap: 10px;
+            gap: 8px;
             margin-top: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .keyboard {
+                grid-template-columns: repeat(7, 1fr);
+            }
         }
         
         @media (max-width: 768px) {
             .keyboard {
-                grid-template-columns: repeat(7, 1fr);
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .keyboard {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 5px;
             }
         }
         
         .key {
             background: rgba(67, 97, 238, 0.2);
             border: 2px solid var(--primary);
-            border-radius: 10px;
-            height: 50px;
+            border-radius: 8px;
+            height: 45px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: var(--transition);
             user-select: none;
+            touch-action: manipulation;
         }
         
-        .key:hover {
+        @media (max-width: 768px) {
+            .key {
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .key {
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .key:hover, .key:active {
             background: rgba(67, 97, 238, 0.4);
-            transform: translateY(-3px);
+            transform: scale(1.05);
         }
         
         .key.used {
@@ -186,6 +338,7 @@
             animation: pop 0.3s;
         }
         
+        /* Animaciones */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -198,6 +351,7 @@
             100% { transform: scale(1); }
         }
         
+        /* Contenedor del ahorcado */
         .hangman-container {
             display: flex;
             flex-direction: column;
@@ -207,11 +361,26 @@
         
         .hangman-drawing {
             position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 20px 0;
+            width: 250px;
+            height: 250px;
+            margin: 15px 0;
         }
         
+        @media (max-width: 768px) {
+            .hangman-drawing {
+                width: 200px;
+                height: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hangman-drawing {
+                width: 180px;
+                height: 180px;
+            }
+        }
+        
+        /* Partes del ahorcado con tamaños relativos */
         .gallows {
             position: absolute;
             background-color: #8b4513;
@@ -219,32 +388,32 @@
         }
         
         .gallows-base {
-            width: 200px;
-            height: 10px;
+            width: 160px;
+            height: 8px;
             bottom: 0;
-            left: 50px;
+            left: 45px;
         }
         
         .gallows-pole {
-            width: 10px;
-            height: 250px;
+            width: 8px;
+            height: 200px;
             bottom: 0;
-            left: 125px;
+            left: 100px;
         }
         
         .gallows-top {
-            width: 100px;
-            height: 10px;
-            top: 40px;
-            left: 125px;
+            width: 80px;
+            height: 8px;
+            top: 30px;
+            left: 100px;
         }
         
         .gallows-rope {
-            width: 5px;
-            height: 40px;
+            width: 4px;
+            height: 30px;
             background-color: #654321;
-            top: 50px;
-            left: 220px;
+            top: 40px;
+            left: 175px;
             position: absolute;
             border-radius: 3px;
         }
@@ -258,52 +427,52 @@
         }
         
         .head {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            top: 90px;
-            left: 200px;
+            top: 75px;
+            left: 160px;
         }
         
         .body {
-            width: 10px;
-            height: 80px;
-            top: 130px;
-            left: 220px;
+            width: 8px;
+            height: 70px;
+            top: 110px;
+            left: 175px;
         }
         
         .left-arm {
-            width: 50px;
-            height: 10px;
-            top: 150px;
-            left: 180px;
+            width: 45px;
+            height: 8px;
+            top: 130px;
+            left: 145px;
             transform: rotate(45deg);
             transform-origin: right;
         }
         
         .right-arm {
-            width: 50px;
-            height: 10px;
-            top: 150px;
-            left: 220px;
+            width: 45px;
+            height: 8px;
+            top: 130px;
+            left: 180px;
             transform: rotate(-45deg);
             transform-origin: left;
         }
         
         .left-leg {
-            width: 50px;
-            height: 10px;
-            top: 210px;
-            left: 180px;
+            width: 45px;
+            height: 8px;
+            top: 180px;
+            left: 145px;
             transform: rotate(45deg);
             transform-origin: right;
         }
         
         .right-leg {
-            width: 50px;
-            height: 10px;
-            top: 210px;
-            left: 220px;
+            width: 45px;
+            height: 8px;
+            top: 180px;
+            left: 180px;
             transform: rotate(-45deg);
             transform-origin: left;
         }
@@ -312,24 +481,41 @@
             opacity: 1;
         }
         
+        /* Controles responsivos */
         .controls {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
         
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            touch-action: manipulation;
+            min-height: 44px; /* Tamaño mínimo para tocabilidad */
         }
         
         .btn-primary {
@@ -337,9 +523,9 @@
             color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover, .btn-primary:active {
             background-color: var(--primary-dark);
-            transform: translateY(-3px);
+            transform: scale(1.05);
         }
         
         .btn-secondary {
@@ -348,9 +534,9 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover, .btn-secondary:active {
             background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
+            transform: scale(1.05);
         }
         
         .btn-accent {
@@ -358,32 +544,35 @@
             color: white;
         }
         
-        .btn-accent:hover {
+        .btn-accent:hover, .btn-accent:active {
             background-color: #e11575;
-            transform: translateY(-3px);
+            transform: scale(1.05);
         }
         
+        /* Selector de categoría */
         .category-selector {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
         }
         
         .category-buttons {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
             flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
         }
         
         .category-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 15px;
             color: var(--light);
             cursor: pointer;
             transition: var(--transition);
+            font-size: 0.9rem;
+            touch-action: manipulation;
         }
         
         .category-btn.active {
@@ -395,69 +584,52 @@
             background: rgba(255, 255, 255, 0.1);
         }
         
-        .message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 30px 50px;
-            border-radius: 15px;
+        /* Selector de dificultad */
+        .difficulty-selector {
+            margin-top: 15px;
             text-align: center;
-            z-index: 100;
-            display: none;
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 30px rgba(67, 97, 238, 0.5);
-            animation: fadeIn 0.5s;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -40%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
         }
         
-        .message h2 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+        .difficulty-btn {
+            padding: 5px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            touch-action: manipulation;
         }
         
-        .message p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+        .difficulty-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
         }
         
-        .message-word {
-            font-family: monospace;
-            font-size: 1.5rem;
-            color: var(--success);
-            margin: 10px 0;
-            letter-spacing: 5px;
-        }
-        
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 99;
-            display: none;
-        }
-        
+        /* Caja de pistas */
         .hint-box {
             background: rgba(114, 9, 183, 0.2);
             border: 1px solid var(--secondary);
             border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+            padding: 12px;
+            margin-top: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
         .hint-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
+            flex: 1;
         }
         
         .hint-btn {
@@ -472,69 +644,197 @@
             justify-content: center;
             cursor: pointer;
             transition: var(--transition);
+            flex-shrink: 0;
+            touch-action: manipulation;
         }
         
-        .hint-btn:hover {
-            background: var(--secondary);
-            color: white;
-        }
-        
+        /* Botón de sonido */
         .sound-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            position: fixed;
+            top: 15px;
+            right: 15px;
             background: rgba(255, 255, 255, 0.1);
             border: none;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             color: white;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             transition: var(--transition);
-        }
-        
-        .sound-toggle:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .difficulty-selector {
-            margin-top: 15px;
+            z-index: 100;
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
+            touch-action: manipulation;
         }
         
-        .difficulty-btn {
-            padding: 6px 12px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--light);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .difficulty-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
+        @media (max-width: 480px) {
+            .sound-toggle {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
         }
         
         .timer {
             color: var(--success);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Mensajes modales */
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 25px 40px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(67, 97, 238, 0.5);
+            animation: fadeIn 0.5s;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .message h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        
+        .message p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .message-word {
+            font-family: monospace;
+            font-size: 1.3rem;
+            color: var(--success);
+            margin: 10px 0;
+            letter-spacing: 3px;
+            word-break: break-word;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* Instrucciones */
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--success);
+        }
+        
+        .instructions p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Orientación landscape para móviles */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+                align-items: flex-start;
+            }
+            
+            .container {
+                grid-template-columns: 1fr 1fr;
+                max-height: 95vh;
+                gap: 10px;
+            }
+            
+            .game-card {
+                padding: 10px;
+                max-height: 90vh;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .game-info {
+                padding: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .info-item {
+                min-width: 60px;
+            }
+            
+            .info-value {
+                font-size: 1rem;
+            }
+            
+            .letter {
+                font-size: 1.5rem;
+                width: 25px;
+                height: 35px;
+            }
+            
+            .keyboard {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+            }
+            
+            .key {
+                height: 30px;
+                font-size: 0.9rem;
+            }
+            
+            .controls {
+                margin-top: 15px;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                min-height: 36px;
+            }
+            
+            .hangman-drawing {
+                width: 150px;
+                height: 150px;
+            }
+        }
+        
+        /* Prevenir zoom en inputs en iOS */
+        input, select, textarea, button {
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <button class="sound-toggle" id="soundToggle">
+    <button class="sound-toggle" id="soundToggle" aria-label="Alternar sonido">
         <i class="fas fa-volume-up"></i>
     </button>
     
     <div class="container">
         <div class="game-card">
             <div class="header">
-                <h1><i class="fas fa-ghost"></i> AHORCADO MODERNO</h1>
+                <h1><i class="fas fa-ghost"></i> AHORCADO</h1>
                 <p class="subtitle">Adivina la palabra antes de que se complete el dibujo</p>
             </div>
             
@@ -553,7 +853,7 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">TIEMPO</div>
-                    <div class="info-value timer" id="timer">--:--</div>
+                    <div class="info-value timer" id="timer">00:00</div>
                 </div>
             </div>
             
@@ -582,7 +882,7 @@
             </div>
             
             <div class="hint-box">
-                <button class="hint-btn" id="hintBtn">
+                <button class="hint-btn" id="hintBtn" aria-label="Obtener pista">
                     <i class="fas fa-lightbulb"></i>
                 </button>
                 <div class="hint-text" id="hintText">Presiona el botón para obtener una pista</div>
@@ -641,7 +941,7 @@
             <div class="instructions">
                 <h3><i class="fas fa-info-circle"></i> Instrucciones</h3>
                 <p>1. Selecciona una categoría y dificultad</p>
-                <p>2. Haz clic en las letras o usa tu teclado para adivinar</p>
+                <p>2. Toca las letras o usa tu teclado para adivinar</p>
                 <p>3. Tienes 6 intentos antes de perder</p>
                 <p>4. Usa las pistas si te quedas atascado</p>
                 <p>5. ¡Gana puntos por adivinar rápido y con pocos errores!</p>
@@ -655,7 +955,7 @@
         <h2 id="messageTitle">¡Felicidades!</h2>
         <p id="messageText">Has adivinado la palabra correctamente</p>
         <div class="message-word" id="messageWord"></div>
-        <p>Tiempo: <span id="messageTime">--:--</span></p>
+        <p>Tiempo: <span id="messageTime">00:00</span></p>
         <p>Puntos ganados: <span id="messagePoints">0</span></p>
         <button class="btn btn-primary" id="playAgainBtn">
             <i class="fas fa-redo"></i> Jugar de nuevo
@@ -663,11 +963,21 @@
     </div>
     
     <!-- Audio para efectos de sonido -->
-    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
-    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
-    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
-    <audio id="loseSound" src="https://assets.mixkit.co/sfx/preview/mixkit-sad-game-over-trombone-471.mp3" preload="auto"></audio>
-    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+    <audio id="correctSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrongSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="winSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="loseSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sad-game-over-trombone-471.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         // Variables del juego
@@ -771,6 +1081,68 @@
             
             // Configurar eventos
             setupEventListeners();
+            
+            // Prevenir comportamiento por defecto de botones en móviles
+            preventButtonDefaultBehavior();
+            
+            // Ajustar tamaños en base a la pantalla
+            adjustLayoutForScreen();
+            
+            // Escuchar cambios de orientación
+            window.addEventListener('orientationchange', adjustLayoutForScreen);
+            window.addEventListener('resize', adjustLayoutForScreen);
+        }
+        
+        // Ajustar diseño basado en el tamaño de pantalla
+        function adjustLayoutForScreen() {
+            const isMobile = window.innerWidth <= 768;
+            const isSmallMobile = window.innerWidth <= 480;
+            const isLandscape = window.innerWidth > window.innerHeight;
+            
+            // Ajustar contenedores según orientación
+            if (isMobile && isLandscape) {
+                document.body.style.alignItems = 'flex-start';
+                document.body.style.padding = '5px';
+                document.querySelector('.container').style.gridTemplateColumns = '1fr 1fr';
+            }
+            
+            // Ajustar tamaño de fuente en pantallas muy pequeñas
+            if (isSmallMobile) {
+                document.documentElement.style.fontSize = '14px';
+            } else {
+                document.documentElement.style.fontSize = '16px';
+            }
+            
+            // Forzar redibujado para prevenir bugs visuales
+            setTimeout(() => {
+                document.body.style.display = 'none';
+                document.body.offsetHeight; // Trigger reflow
+                document.body.style.display = 'flex';
+            }, 10);
+        }
+        
+        // Prevenir comportamiento por defecto en botones táctiles
+        function preventButtonDefaultBehavior() {
+            const buttons = document.querySelectorAll('button, .key, .category-btn, .difficulty-btn');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Añadir efecto visual de presión
+                    this.style.transform = 'scale(0.95)';
+                    
+                    // Quitar el efecto después de 150ms
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                }, {passive: false});
+                
+                button.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, {passive: false});
+            });
         }
         
         // Generar el teclado en pantalla
@@ -785,14 +1157,41 @@
                 key.className = 'key';
                 key.textContent = letter;
                 key.dataset.letter = letter;
+                key.setAttribute('role', 'button');
+                key.setAttribute('aria-label', `Letra ${letter}`);
+                key.setAttribute('tabindex', '0');
                 
-                key.addEventListener('click', () => {
-                    if (isGameActive && !key.classList.contains('used')) {
-                        guessLetter(letter);
+                // Evento click/touch
+                key.addEventListener('click', () => handleLetterClick(letter, key));
+                
+                // Evento táctil
+                key.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    handleLetterClick(letter, key);
+                }, {passive: false});
+                
+                // Evento teclado para accesibilidad
+                key.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleLetterClick(letter, key);
                     }
                 });
                 
                 keyboard.appendChild(key);
+            }
+        }
+        
+        // Manejar clic en letra
+        function handleLetterClick(letter, keyElement) {
+            if (isGameActive && !keyElement.classList.contains('used')) {
+                guessLetter(letter);
+                
+                // Efecto visual de presión
+                keyElement.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    keyElement.style.transform = '';
+                }, 150);
             }
         }
         
@@ -814,22 +1213,32 @@
             });
             
             // Botón nuevo juego
-            document.getElementById('newGameBtn').addEventListener('click', newGame);
+            const newGameBtn = document.getElementById('newGameBtn');
+            newGameBtn.addEventListener('click', newGame);
+            newGameBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botón jugar de nuevo en mensaje
-            document.getElementById('playAgainBtn').addEventListener('click', () => {
+            const playAgainBtn = document.getElementById('playAgainBtn');
+            playAgainBtn.addEventListener('click', () => {
                 hideMessage();
                 newGame();
             });
+            playAgainBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botón pista
-            document.getElementById('hintBtn').addEventListener('click', giveHint);
+            const hintBtn = document.getElementById('hintBtn');
+            hintBtn.addEventListener('click', giveHint);
+            hintBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botón revelar letra
-            document.getElementById('hintLetterBtn').addEventListener('click', revealRandomLetter);
+            const hintLetterBtn = document.getElementById('hintLetterBtn');
+            hintLetterBtn.addEventListener('click', revealRandomLetter);
+            hintLetterBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botón resolver
-            document.getElementById('solveBtn').addEventListener('click', solveWord);
+            const solveBtn = document.getElementById('solveBtn');
+            solveBtn.addEventListener('click', solveWord);
+            solveBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botones de categoría
             document.querySelectorAll('.category-btn').forEach(btn => {
@@ -844,6 +1253,8 @@
                         newGame();
                     }
                 });
+                
+                btn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             });
             
             // Botones de dificultad
@@ -859,10 +1270,24 @@
                         newGame();
                     }
                 });
+                
+                btn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             });
             
             // Botón de sonido
-            document.getElementById('soundToggle').addEventListener('click', toggleSound);
+            const soundToggle = document.getElementById('soundToggle');
+            soundToggle.addEventListener('click', toggleSound);
+            soundToggle.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            
+            // Prevenir zoom en iOS al hacer doble tap
+            document.addEventListener('dblclick', (e) => {
+                if (e.target.classList.contains('key') || 
+                    e.target.classList.contains('btn') ||
+                    e.target.classList.contains('category-btn') ||
+                    e.target.classList.contains('difficulty-btn')) {
+                    e.preventDefault();
+                }
+            });
         }
         
         // Iniciar un nuevo juego
@@ -899,6 +1324,11 @@
             gamesPlayed++;
             localStorage.setItem('hangmanGamesPlayed', gamesPlayed);
             document.getElementById('gamesPlayed').textContent = gamesPlayed;
+            
+            // Enfocar el primer elemento interactivo para accesibilidad
+            setTimeout(() => {
+                document.querySelector('.key').focus();
+            }, 100);
         }
         
         // Generar display de la palabra
@@ -914,7 +1344,7 @@
                     letterElement.className = 'letter space';
                     letterElement.innerHTML = '&nbsp;';
                     letterElement.style.borderBottom = 'none';
-                    letterElement.style.margin = '0 15px';
+                    letterElement.style.margin = '0 10px';
                 } else {
                     letterElement.className = 'letter';
                     letterElement.textContent = guessedLetters.includes(letter) ? letter : '';
@@ -1026,6 +1456,7 @@
             const keys = document.querySelectorAll('.key');
             keys.forEach(key => {
                 key.classList.remove('used', 'correct', 'wrong');
+                key.style.transform = '';
             });
         }
         
@@ -1216,6 +1647,11 @@
             
             message.style.display = 'block';
             overlay.style.display = 'block';
+            
+            // Enfocar botón de jugar de nuevo
+            setTimeout(() => {
+                document.getElementById('playAgainBtn').focus();
+            }, 100);
         }
         
         // Ocultar mensaje
@@ -1237,8 +1673,19 @@
             };
             
             if (soundMap[type]) {
+                // Reiniciar sonido si ya se estaba reproduciendo
                 soundMap[type].currentTime = 0;
-                soundMap[type].play().catch(e => console.log("Error reproduciendo sonido:", e));
+                
+                // Reproducir con manejo de errores
+                soundMap[type].play().catch(e => {
+                    console.log("Error reproduciendo sonido:", e);
+                    // En algunos dispositivos móviles, necesitamos interacción del usuario primero
+                    if (e.name === 'NotAllowedError') {
+                        // Habilitar sonido para el futuro
+                        soundEnabled = true;
+                        document.getElementById('soundToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
+                    }
+                });
             }
         }
         
@@ -1250,6 +1697,8 @@
             if (soundEnabled) {
                 icon.className = 'fas fa-volume-up';
                 document.getElementById('soundToggle').style.color = 'white';
+                // Probar reproducción de sonido
+                playSound('click');
             } else {
                 icon.className = 'fas fa-volume-mute';
                 document.getElementById('soundToggle').style.color = '#f72585';
@@ -1258,6 +1707,13 @@
         
         // Inicializar cuando se carga la página
         window.addEventListener('DOMContentLoaded', initGame);
+        
+        // Prevenir recarga en móviles al deslizar
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.classList.contains('game-card')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
