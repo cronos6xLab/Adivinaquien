@@ -51,29 +51,20 @@
             overflow-x: hidden;
         }
         
-        /* Contenedor principal con relación de aspecto fija en móviles */
+        /* Contenedor principal */
         .container {
             max-width: 1200px;
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
-            max-height: 90vh;
-            min-height: 600px;
         }
         
         /* Responsividad completa */
         @media (max-width: 1100px) {
             .container {
                 grid-template-columns: 1fr;
-                max-height: none;
-                min-height: auto;
                 gap: 20px;
-            }
-            
-            .game-card {
-                max-height: none;
-                overflow-y: visible;
             }
         }
         
@@ -87,8 +78,6 @@
             
             .container {
                 gap: 15px;
-                max-height: none;
-                min-height: auto;
             }
             
             .game-card {
@@ -380,7 +369,7 @@
             }
         }
         
-        /* Partes del ahorcado con tamaños relativos */
+        /* Partes del ahorcado */
         .gallows {
             position: absolute;
             background-color: #8b4513;
@@ -515,7 +504,7 @@
             justify-content: center;
             gap: 8px;
             touch-action: manipulation;
-            min-height: 44px; /* Tamaño mínimo para tocabilidad */
+            min-height: 44px;
         }
         
         .btn-primary {
@@ -761,13 +750,11 @@
             
             .container {
                 grid-template-columns: 1fr 1fr;
-                max-height: 95vh;
                 gap: 10px;
             }
             
             .game-card {
                 padding: 10px;
-                max-height: 90vh;
             }
             
             h1 {
@@ -818,11 +805,6 @@
                 width: 150px;
                 height: 150px;
             }
-        }
-        
-        /* Prevenir zoom en inputs en iOS */
-        input, select, textarea, button {
-            font-size: 16px;
         }
     </style>
 </head>
@@ -1081,68 +1063,6 @@
             
             // Configurar eventos
             setupEventListeners();
-            
-            // Prevenir comportamiento por defecto de botones en móviles
-            preventButtonDefaultBehavior();
-            
-            // Ajustar tamaños en base a la pantalla
-            adjustLayoutForScreen();
-            
-            // Escuchar cambios de orientación
-            window.addEventListener('orientationchange', adjustLayoutForScreen);
-            window.addEventListener('resize', adjustLayoutForScreen);
-        }
-        
-        // Ajustar diseño basado en el tamaño de pantalla
-        function adjustLayoutForScreen() {
-            const isMobile = window.innerWidth <= 768;
-            const isSmallMobile = window.innerWidth <= 480;
-            const isLandscape = window.innerWidth > window.innerHeight;
-            
-            // Ajustar contenedores según orientación
-            if (isMobile && isLandscape) {
-                document.body.style.alignItems = 'flex-start';
-                document.body.style.padding = '5px';
-                document.querySelector('.container').style.gridTemplateColumns = '1fr 1fr';
-            }
-            
-            // Ajustar tamaño de fuente en pantallas muy pequeñas
-            if (isSmallMobile) {
-                document.documentElement.style.fontSize = '14px';
-            } else {
-                document.documentElement.style.fontSize = '16px';
-            }
-            
-            // Forzar redibujado para prevenir bugs visuales
-            setTimeout(() => {
-                document.body.style.display = 'none';
-                document.body.offsetHeight; // Trigger reflow
-                document.body.style.display = 'flex';
-            }, 10);
-        }
-        
-        // Prevenir comportamiento por defecto en botones táctiles
-        function preventButtonDefaultBehavior() {
-            const buttons = document.querySelectorAll('button, .key, .category-btn, .difficulty-btn');
-            buttons.forEach(button => {
-                button.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Añadir efecto visual de presión
-                    this.style.transform = 'scale(0.95)';
-                    
-                    // Quitar el efecto después de 150ms
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                }, {passive: false});
-                
-                button.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, {passive: false});
-            });
         }
         
         // Generar el teclado en pantalla
@@ -1157,41 +1077,23 @@
                 key.className = 'key';
                 key.textContent = letter;
                 key.dataset.letter = letter;
-                key.setAttribute('role', 'button');
-                key.setAttribute('aria-label', `Letra ${letter}`);
-                key.setAttribute('tabindex', '0');
                 
-                // Evento click/touch
-                key.addEventListener('click', () => handleLetterClick(letter, key));
+                // Solo usar evento click - simplificado
+                key.addEventListener('click', () => {
+                    if (isGameActive && !key.classList.contains('used')) {
+                        guessLetter(letter);
+                    }
+                });
                 
-                // Evento táctil
+                // También permitir toque en móviles
                 key.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    handleLetterClick(letter, key);
-                }, {passive: false});
-                
-                // Evento teclado para accesibilidad
-                key.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleLetterClick(letter, key);
+                    if (isGameActive && !key.classList.contains('used')) {
+                        guessLetter(letter);
                     }
                 });
                 
                 keyboard.appendChild(key);
-            }
-        }
-        
-        // Manejar clic en letra
-        function handleLetterClick(letter, keyElement) {
-            if (isGameActive && !keyElement.classList.contains('used')) {
-                guessLetter(letter);
-                
-                // Efecto visual de presión
-                keyElement.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    keyElement.style.transform = '';
-                }, 150);
             }
         }
         
@@ -1206,39 +1108,45 @@
                     guessLetter(key);
                 }
                 
-                // Permitir usar Enter para nuevo juego cuando el juego no está activo
-                if (e.key === 'Enter' && !isGameActive) {
+                // Permitir usar Enter para nuevo juego
+                if (e.key === 'Enter') {
                     newGame();
                 }
             });
             
             // Botón nuevo juego
-            const newGameBtn = document.getElementById('newGameBtn');
-            newGameBtn.addEventListener('click', newGame);
-            newGameBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            document.getElementById('newGameBtn').addEventListener('click', newGame);
+            document.getElementById('newGameBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                newGame();
+            });
             
             // Botón jugar de nuevo en mensaje
-            const playAgainBtn = document.getElementById('playAgainBtn');
-            playAgainBtn.addEventListener('click', () => {
+            document.getElementById('playAgainBtn').addEventListener('click', () => {
                 hideMessage();
                 newGame();
             });
-            playAgainBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             
             // Botón pista
-            const hintBtn = document.getElementById('hintBtn');
-            hintBtn.addEventListener('click', giveHint);
-            hintBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            document.getElementById('hintBtn').addEventListener('click', giveHint);
+            document.getElementById('hintBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                giveHint();
+            });
             
             // Botón revelar letra
-            const hintLetterBtn = document.getElementById('hintLetterBtn');
-            hintLetterBtn.addEventListener('click', revealRandomLetter);
-            hintLetterBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            document.getElementById('hintLetterBtn').addEventListener('click', revealRandomLetter);
+            document.getElementById('hintLetterBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                revealRandomLetter();
+            });
             
             // Botón resolver
-            const solveBtn = document.getElementById('solveBtn');
-            solveBtn.addEventListener('click', solveWord);
-            solveBtn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            document.getElementById('solveBtn').addEventListener('click', solveWord);
+            document.getElementById('solveBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                solveWord();
+            });
             
             // Botones de categoría
             document.querySelectorAll('.category-btn').forEach(btn => {
@@ -1253,8 +1161,6 @@
                         newGame();
                     }
                 });
-                
-                btn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             });
             
             // Botones de dificultad
@@ -1270,23 +1176,13 @@
                         newGame();
                     }
                 });
-                
-                btn.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
             });
             
             // Botón de sonido
-            const soundToggle = document.getElementById('soundToggle');
-            soundToggle.addEventListener('click', toggleSound);
-            soundToggle.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
-            
-            // Prevenir zoom en iOS al hacer doble tap
-            document.addEventListener('dblclick', (e) => {
-                if (e.target.classList.contains('key') || 
-                    e.target.classList.contains('btn') ||
-                    e.target.classList.contains('category-btn') ||
-                    e.target.classList.contains('difficulty-btn')) {
-                    e.preventDefault();
-                }
+            document.getElementById('soundToggle').addEventListener('click', toggleSound);
+            document.getElementById('soundToggle').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                toggleSound();
             });
         }
         
@@ -1324,11 +1220,6 @@
             gamesPlayed++;
             localStorage.setItem('hangmanGamesPlayed', gamesPlayed);
             document.getElementById('gamesPlayed').textContent = gamesPlayed;
-            
-            // Enfocar el primer elemento interactivo para accesibilidad
-            setTimeout(() => {
-                document.querySelector('.key').focus();
-            }, 100);
         }
         
         // Generar display de la palabra
@@ -1456,7 +1347,6 @@
             const keys = document.querySelectorAll('.key');
             keys.forEach(key => {
                 key.classList.remove('used', 'correct', 'wrong');
-                key.style.transform = '';
             });
         }
         
@@ -1583,7 +1473,7 @@
                 if (difficulty === 'normal') pointsEarned += 50;
                 if (difficulty === 'hard') pointsEarned += 100;
                 
-                // Penalización por tiempo (menos puntos cuanto más tiempo)
+                // Penalización por tiempo
                 pointsEarned = Math.max(10, pointsEarned - Math.floor(elapsedTime / 5));
                 
                 // Penalización por errores
@@ -1647,11 +1537,6 @@
             
             message.style.display = 'block';
             overlay.style.display = 'block';
-            
-            // Enfocar botón de jugar de nuevo
-            setTimeout(() => {
-                document.getElementById('playAgainBtn').focus();
-            }, 100);
         }
         
         // Ocultar mensaje
@@ -1673,19 +1558,16 @@
             };
             
             if (soundMap[type]) {
-                // Reiniciar sonido si ya se estaba reproduciendo
                 soundMap[type].currentTime = 0;
                 
-                // Reproducir con manejo de errores
-                soundMap[type].play().catch(e => {
-                    console.log("Error reproduciendo sonido:", e);
-                    // En algunos dispositivos móviles, necesitamos interacción del usuario primero
-                    if (e.name === 'NotAllowedError') {
-                        // Habilitar sonido para el futuro
-                        soundEnabled = true;
-                        document.getElementById('soundToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
-                    }
-                });
+                // Intentar reproducir el sonido
+                const playPromise = soundMap[type].play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Error reproduciendo sonido:", error);
+                    });
+                }
             }
         }
         
@@ -1707,13 +1589,6 @@
         
         // Inicializar cuando se carga la página
         window.addEventListener('DOMContentLoaded', initGame);
-        
-        // Prevenir recarga en móviles al deslizar
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.classList.contains('game-card')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
     </script>
 </body>
 </html>
