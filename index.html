@@ -132,7 +132,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .error-level-letter{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1}
 .error-level-name{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-family:'JetBrains Mono',monospace}
 
-/* RIGHT PANEL - Vista previa corregida */
+/* RIGHT PANEL */
 .preview-wrap {
   background: var(--card);
   border: 1px solid var(--line);
@@ -447,6 +447,11 @@ button:focus-visible{outline-offset:-2px}
   </footer>
 </div>
 
+<!-- Miniatura flotante -->
+<div id="qr-thumbnail" class="qr-thumbnail">
+  <canvas id="qr-thumb-canvas" width="80" height="80"></canvas>
+</div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -470,7 +475,7 @@ const state = {
     cornerStyle: 'square',
     logo: null,
     backgroundImage: null,
-    backgroundOpacity: 1,   // Nueva propiedad
+    backgroundOpacity: 1,
     moduleImage: null,
     logoSize: 22
   },
@@ -512,6 +517,7 @@ function init() {
   bindEvents();
   updateDate();
   renderQR();
+  setupThumbnailObserver();
 }
 
 function updateDate() {
@@ -786,7 +792,6 @@ function handleBackgroundFile(file) {
     img.onload = () => { backgroundImageObj = img; renderQR(); };
     img.src = e.target.result;
     renderBackgroundPreview(file);
-    // Mostrar control de opacidad
     document.getElementById('bg-opacity-field').style.display = 'block';
     toast('Imagen de fondo cargada');
   };
@@ -883,7 +888,6 @@ function resetBackgroundUpload() {
     <input type="file" id="bg-image-input" accept="image/*" style="display:none">
   `;
   document.getElementById('bg-image-input').addEventListener('change', e => { if (e.target.files[0]) handleBackgroundFile(e.target.files[0]); });
-  // Ocultar control de opacidad
   document.getElementById('bg-opacity-field').style.display = 'none';
 }
 
@@ -950,7 +954,7 @@ function getDataString() {
   return ' ';
 }
 
-// ===== Render QR (con dimensiones dinámicas corregidas) =====
+// ===== Render QR y copia a miniatura =====
 function renderQR() {
   const data = getDataString();
   const status = document.getElementById('preview-status');
@@ -966,6 +970,7 @@ function renderQR() {
     drawCanvas(qr);
     updateDiagnostics(qr, data);
     status.innerHTML = '<span class="preview-status-dot"></span>Listo';
+    updateThumbnail();
   } catch (e) {
     status.innerHTML = '<span class="preview-status-dot" style="background:var(--accent)"></span>Demasiado largo';
     if (state.errorLevel !== 'L') {
@@ -976,6 +981,7 @@ function renderQR() {
         currentQR = qr;
         drawCanvas(qr);
         updateDiagnostics(qr, data);
+        updateThumbnail();
       } catch(e2) { console.error(e2); }
     }
   }
@@ -999,7 +1005,6 @@ function drawCanvas(qr) {
   const ctx = canvas.getContext('2d');
   const size = canvas.width;
   
-  // Fondo con opacidad
   if (backgroundImageObj) {
     ctx.save();
     ctx.globalAlpha = state.style.backgroundOpacity;
@@ -1047,6 +1052,36 @@ function drawCanvas(qr) {
     ctx.fill();
     ctx.drawImage(logoImage, x, y, logoSize, logoSize);
   }
+}
+
+function updateThumbnail() {
+  const mainCanvas = document.getElementById('qr-canvas');
+  const thumbCanvas = document.getElementById('qr-thumb-canvas');
+  const ctx = thumbCanvas.getContext('2d');
+  ctx.clearRect(0, 0, thumbCanvas.width, thumbCanvas.height);
+  ctx.drawImage(mainCanvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+}
+
+function setupThumbnailObserver() {
+  const thumb = document.getElementById('qr-thumbnail');
+  const previewWrap = document.getElementById('preview-wrap');
+  
+  function checkVisibility() {
+    const rect = previewWrap.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    // En móviles (<960px) la vista previa está arriba; queremos mostrar la miniatura cuando no esté visible
+    // En escritorio, la vista previa está sticky a la derecha y siempre visible en su columna; queremos mostrarla solo si no está visible (al hacer scroll en el panel izquierdo)
+    const isMobile = window.innerWidth <= 960;
+    if (!isVisible || (isMobile && window.scrollY > 200)) {
+      thumb.classList.add('visible');
+    } else {
+      thumb.classList.remove('visible');
+    }
+  }
+  
+  window.addEventListener('scroll', checkVisibility, { passive: true });
+  window.addEventListener('resize', checkVisibility);
+  checkVisibility();
 }
 
 function isFinderArea(r, c, count) {
