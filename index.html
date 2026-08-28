@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#EDE5D2">
 <title>QR Atelier — Generador editorial de códigos QR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,9 +133,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .error-level-name{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-family:'JetBrains Mono',monospace}
 
 /* RIGHT PANEL */
-.preview-wrap{background:var(--card);border:1px solid var(--line);padding:32px;position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;transition:background 0.4s}
-.preview-wrap::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px solid var(--line-soft);pointer-events:none}
-#qr-canvas{display:block;max-width:100%;max-height:100%;width:100%;height:100%;position:relative;z-index:1}
+/* Contenedor de vista previa corregido: sin aspect-ratio, usando padding-bottom */
+.preview-wrap{background:var(--card);border:1px solid var(--line);padding:32px;position:relative;width:100%;padding-bottom:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background 0.4s}
+.preview-wrap::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px solid var(--line-soft);pointer-events:none;z-index:2}
+#qr-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:calc(100% - 64px);height:calc(100% - 64px);object-fit:contain;z-index:1}
 .preview-corner{position:absolute;width:14px;height:14px;border:1.5px solid var(--accent);z-index:2;transition:all 0.3s}
 .preview-corner.tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
 .preview-corner.tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
@@ -292,7 +293,7 @@ button:focus-visible{outline-offset:-2px}
           </label>
         </div>
 
-        <!-- NUEVO: Imagen de fondo personalizada -->
+        <!-- Imagen de fondo personalizada -->
         <div class="field-label" style="margin-top:12px">Imagen de fondo (opcional)</div>
         <div class="logo-upload" id="bg-image-upload">
           <div class="logo-upload-content">
@@ -302,7 +303,7 @@ button:focus-visible{outline-offset:-2px}
           <input type="file" id="bg-image-input" accept="image/*" style="display:none">
         </div>
 
-        <!-- NUEVO: Textura de módulos -->
+        <!-- Textura para módulos -->
         <div class="field-label" style="margin-top:20px">Textura para módulos (opcional)</div>
         <div class="logo-upload" id="module-image-upload">
           <div class="logo-upload-content">
@@ -337,7 +338,7 @@ button:focus-visible{outline-offset:-2px}
           <input type="file" id="logo-input" accept="image/*" style="display:none">
         </div>
 
-        <!-- NUEVO: Control de tamaño del logo -->
+        <!-- Control de tamaño del logo -->
         <div class="field" style="margin-top:16px">
           <label class="field-label" for="logo-size-range">Tamaño del logo: <span id="logo-size-value">22%</span></label>
           <input type="range" id="logo-size-range" min="10" max="40" value="22" step="1" style="width:100%">
@@ -365,7 +366,7 @@ button:focus-visible{outline-offset:-2px}
         <div class="preview-corner tr"></div>
         <div class="preview-corner bl"></div>
         <div class="preview-corner br"></div>
-        <canvas id="qr-canvas" width="1200" height="1200"></canvas>
+        <canvas id="qr-canvas"></canvas>
       </div>
 
       <div class="diag">
@@ -425,10 +426,10 @@ const state = {
     bgColor: '#F7F1E0',
     moduleStyle: 'square',
     cornerStyle: 'square',
-    logo: null,               // dataURL del logo
-    backgroundImage: null,    // dataURL de la imagen de fondo
-    moduleImage: null,        // dataURL de la textura de módulos
-    logoSize: 22              // porcentaje del tamaño del QR
+    logo: null,
+    backgroundImage: null,
+    moduleImage: null,
+    logoSize: 22
   },
   errorLevel: 'M'
 };
@@ -457,8 +458,8 @@ const presets = [
 
 let currentQR = null;
 let logoImage = null;
-let backgroundImageObj = null;  // Objeto Image para fondo
-let moduleImageObj = null;      // Objeto Image para textura
+let backgroundImageObj = null;
+let moduleImageObj = null;
 
 // ===== Init =====
 function init() {
@@ -894,7 +895,7 @@ function getDataString() {
   return ' ';
 }
 
-// ===== Render QR =====
+// ===== Render QR (con dimensiones dinámicas) =====
 function renderQR() {
   const data = getDataString();
   const status = document.getElementById('preview-status');
@@ -927,12 +928,22 @@ function renderQR() {
 
 function drawCanvas(qr) {
   const canvas = document.getElementById('qr-canvas');
+  const container = document.getElementById('preview-wrap');
+  const rect = container.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  // El tamaño visible del canvas debe ser el tamaño del contenedor menos el padding (64px en total)
+  const displaySize = Math.max(100, rect.width - 64); // mínimo 100px para evitar cero
+  const internalSize = Math.floor(displaySize * dpr);
+  canvas.width = internalSize;
+  canvas.height = internalSize;
+  canvas.style.width = displaySize + 'px';
+  canvas.style.height = displaySize + 'px';
+  
   const ctx = canvas.getContext('2d');
-  const size = canvas.width; // 1200
+  const size = canvas.width; // tamaño interno
   
   // Fondo: usar imagen si existe, si no color
   if (backgroundImageObj) {
-    // Dibujar imagen cubriendo todo el canvas
     ctx.drawImage(backgroundImageObj, 0, 0, size, size);
   } else {
     ctx.fillStyle = state.style.bgColor;
@@ -946,7 +957,6 @@ function drawCanvas(qr) {
   // Preparar patrón para módulos si hay textura
   let modulePattern = null;
   if (moduleImageObj) {
-    // Crear patrón escalado al tamaño de un módulo
     const patternCanvas = document.createElement('canvas');
     patternCanvas.width = moduleSize;
     patternCanvas.height = moduleSize;
@@ -1138,13 +1148,14 @@ function exportPNG() {
   link.download = `qr-${state.type}-${Date.now()}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
-  toast('PNG descargado · 1200×1200');
+  toast('PNG descargado · ' + canvas.width + '×' + canvas.height);
 }
 
 function exportSVG() {
   if (!currentQR) return;
   const qr = currentQR;
   const moduleCount = qr.getModuleCount();
+  // Usamos un tamaño fijo para exportación (alta resolución)
   const size = 1200;
   const margin = size * 0.08;
   const moduleSize = (size - margin * 2) / moduleCount;
