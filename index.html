@@ -2,1297 +2,586 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#EDE5D2">
-<title>QR Atelier — Generador editorial de códigos QR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta — Alimentos & Bebidas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#EDE5D2;--bg-2:#E2D9C0;--card:#F7F1E0;--card-2:#FBF6E8;
-  --fg:#0E0E0E;--muted:#6B665C;--muted-2:#9A9384;
-  --line:#0E0E0E;--line-soft:#C9C0A8;
-  --accent:#C8202D;--gold:#B89343;--green:#2D5F3F;
+:root {
+  --bg: #f5f3ef;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --muted-2: #86868b;
+  --accent: #c2410c;
+  --accent-2: #ea580c;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg: 0 30px 80px -20px rgba(0,0,0,0.18);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.5;overflow-x:hidden;min-height:100vh}
-input,select,textarea,button{font-family:inherit;font-size:16px;letter-spacing:inherit}
-button{cursor:pointer;border:none;background:none;color:inherit}
-/* Texturas */
-body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 18% 25%,rgba(184,147,67,0.09) 0%,transparent 45%),radial-gradient(circle at 82% 75%,rgba(200,32,45,0.06) 0%,transparent 45%);pointer-events:none;z-index:0}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:1;mix-blend-mode:multiply;opacity:0.5}
-.app{position:relative;z-index:2}
 
-/* HEADER */
-.header{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid var(--line);background:var(--bg);padding-top:max(18px,env(safe-area-inset-top));padding-left:max(32px,env(safe-area-inset-left));padding-right:max(32px,env(safe-area-inset-right))}
-.brand{display:flex;align-items:baseline;gap:14px}
-.brand-mark{font-family:'Playfair Display',serif;font-weight:900;font-size:30px;letter-spacing:-0.025em;font-style:italic;line-height:1}
-.brand-mark .amp{color:var(--accent);font-weight:400;font-style:normal}
-.brand-sub{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);border-left:1px solid var(--line-soft);padding-left:14px}
-.header-meta{display:flex;align-items:center;gap:20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
-.header-meta-item{display:flex;align-items:center;gap:6px}
-.dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
-/* HERO */
-.hero{padding:60px 40px 50px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
-.hero-inner{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;position:relative;z-index:2}
-.hero h1{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(48px,9vw,124px);line-height:0.88;letter-spacing:-0.035em}
-.hero h1 .italic{font-style:italic;font-weight:400;color:var(--accent)}
-.hero h1 .outline{color:var(--fg);-webkit-text-stroke:1.5px var(--line);-webkit-text-fill-color:transparent}
-.hero-meta{display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:right}
-.hero-meta strong{color:var(--fg);font-weight:500}
-.hero-num{position:absolute;top:-30px;right:-20px;font-family:'Playfair Display',serif;font-weight:900;font-size:340px;color:var(--accent);opacity:0.06;line-height:1;pointer-events:none;z-index:1;font-style:italic}
-
-/* LAYOUT */
-.layout{display:grid;grid-template-columns:1.05fr 0.95fr;min-height:calc(100vh - 280px)}
-.left-panel{padding:48px 40px 80px;border-right:1px solid var(--line);position:relative}
-.right-panel{padding:48px 40px 40px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:28px;background:var(--bg)}
-.right-panel::-webkit-scrollbar{width:6px}
-.right-panel::-webkit-scrollbar-track{background:transparent}
-.right-panel::-webkit-scrollbar-thumb{background:var(--line-soft)}
-
-/* Section labels */
-.sec-label{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.sec-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;background:var(--fg);color:var(--card);padding:3px 8px;letter-spacing:0.05em}
-.sec-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;letter-spacing:-0.015em}
-.sec-desc{font-size:11px;color:var(--muted);margin-left:auto;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-transform:uppercase}
-
-/* Type grid */
-.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:36px}
-.type-card{background:var(--card);border:1px solid var(--line);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:background 0.2s,color 0.2s;position:relative;overflow:hidden}
-.type-card:hover{background:var(--fg);color:var(--card)}
-.type-card:hover .type-icon svg{stroke:var(--card)}
-.type-card.active{background:var(--fg);color:var(--card)}
-.type-card.active .type-icon svg{stroke:var(--card)}
-.type-card.active::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--accent);border-radius:50%}
-.type-icon{display:flex;align-items:center;justify-content:center;width:32px;height:32px}
-.type-icon svg{width:28px;height:28px;stroke:var(--fg);stroke-width:1.5;fill:none;transition:stroke 0.2s}
-.type-name{font-size:11px;letter-spacing:0.05em;text-transform:uppercase;font-weight:500;text-align:center}
-
-/* Fields */
-.field-group{margin-bottom:28px}
-.field{margin-bottom:14px;position:relative}
-.field-label{display:block;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:500;font-family:'JetBrains Mono',monospace}
-.field-input,.field-textarea,.field-select{width:100%;background:var(--card);border:1px solid var(--line);padding:14px 16px;font-size:16px;font-family:'Space Grotesk',sans-serif;color:var(--fg);outline:none;transition:all 0.2s;-webkit-appearance:none;border-radius:0}
-.field-input:focus,.field-textarea:focus,.field-select:focus{background:var(--card-2);box-shadow:inset 0 0 0 2px var(--accent)}
-.field-textarea{min-height:96px;resize:vertical;line-height:1.5}
-.field-input::placeholder,.field-textarea::placeholder{color:var(--muted-2)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%230E0E0E' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;cursor:pointer}
-
-/* Customization */
-.custom-section{border-top:1px solid var(--line-soft);padding-top:32px;margin-top:8px}
-
-/* Color presets */
-.color-presets{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
-.preset{aspect-ratio:1;border:1px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:transform 0.15s}
-.preset:hover{transform:scale(0.94)}
-.preset.active{box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--fg)}
-.preset .swatch{width:60%;height:60%}
-
-/* Color picker */
-.color-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.color-picker{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);padding:10px 12px;cursor:pointer}
-.color-picker input[type=color]{width:32px;height:32px;border:none;background:none;cursor:pointer;padding:0}
-.color-picker input[type=color]::-webkit-color-swatch-wrapper{padding:0}
-.color-picker input[type=color]::-webkit-color-swatch{border:1px solid var(--line);border-radius:0}
-.color-picker-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.color-picker-value{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg);margin-top:2px}
-
-/* Style grid */
-.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-.style-option{aspect-ratio:1;background:var(--card);border:1px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--fg)}
-.style-option:hover{background:var(--card-2)}
-.style-option.active{background:var(--fg);color:var(--card)}
-.style-preview{width:60%;height:60%}
-
-/* Logo upload */
-.logo-upload{border:1px dashed var(--line);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--card)}
-.logo-upload:hover{background:var(--card-2);border-style:solid}
-.logo-upload.has-logo{padding:12px;border-style:solid}
-.logo-preview{display:flex;align-items:center;gap:12px;text-align:left}
-.logo-preview img{width:48px;height:48px;object-fit:contain;background:#fff;padding:4px;border:1px solid var(--line)}
-.logo-info{flex:1;min-width:0}
-.logo-info-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.logo-info-size{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
-.logo-remove{font-size:11px;color:var(--accent);text-decoration:underline;margin-top:4px}
-.logo-upload-title{font-size:13px;font-weight:500;margin-bottom:4px}
-.logo-upload-desc{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em}
-
-/* Error level */
-.error-level{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);background:var(--card)}
-.error-level-option{padding:14px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--line);transition:all 0.2s;position:relative}
-.error-level-option:last-child{border-right:none}
-.error-level-option:hover{background:var(--card-2)}
-.error-level-option.active{background:var(--fg);color:var(--card)}
-.error-level-letter{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1}
-.error-level-name{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;font-family:'JetBrains Mono',monospace}
-
-/* RIGHT PANEL */
-/* Contenedor de vista previa corregido: sin aspect-ratio, usando padding-bottom */
-.preview-wrap{background:var(--card);border:1px solid var(--line);padding:32px;position:relative;width:100%;padding-bottom:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background 0.4s}
-.preview-wrap::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px solid var(--line-soft);pointer-events:none;z-index:2}
-#qr-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:calc(100% - 64px);height:calc(100% - 64px);object-fit:contain;z-index:1}
-.preview-corner{position:absolute;width:14px;height:14px;border:1.5px solid var(--accent);z-index:2;transition:all 0.3s}
-.preview-corner.tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
-.preview-corner.tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
-.preview-corner.bl{bottom:-1px;left:-1px;border-right:none;border-top:none}
-.preview-corner.br{bottom:-1px;right:-1px;border-left:none;border-top:none}
-.preview-label{position:absolute;top:-10px;background:var(--bg);padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);left:24px;z-index:3}
-.preview-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
-
-/* Diagnóstico */
-.diag{background:var(--card);border:1px solid var(--line);padding:24px}
-.diag-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.diag-title::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%}
-.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.diag-item{padding:10px 0;border-bottom:1px solid var(--line-soft)}
-.diag-item:nth-last-child(-n+2){border-bottom:none}
-.diag-item:nth-child(odd){padding-right:16px}
-.diag-item:nth-child(even){padding-left:16px;border-left:1px solid var(--line-soft)}
-.diag-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:4px}
-.diag-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1;letter-spacing:-0.01em}
-.diag-value small{font-size:11px;color:var(--muted);font-weight:400;font-family:'JetBrains Mono',monospace;margin-left:4px}
-.capacity-bar{margin-top:14px}
-.capacity-bar-track{height:4px;background:var(--bg-2);position:relative;overflow:hidden}
-.capacity-bar-fill{height:100%;background:var(--green);transition:width 0.4s cubic-bezier(0.65,0,0.35,1),background 0.3s}
-.capacity-bar-fill.warn{background:var(--gold)}
-.capacity-bar-fill.danger{background:var(--accent)}
-.capacity-bar-label{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:0.05em}
-
-/* Export */
-.export{background:var(--card);border:1px solid var(--line);padding:24px}
-.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.export-btn{background:var(--fg);color:var(--card);padding:14px 16px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;border:1px solid var(--fg)}
-.export-btn:hover{background:var(--accent);border-color:var(--accent)}
-.export-btn.secondary{background:var(--card);color:var(--fg);border:1px solid var(--line)}
-.export-btn.secondary:hover{background:var(--fg);color:var(--card);border-color:var(--fg)}
-.export-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.5;fill:none}
-.export-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-
-/* Toast */
-.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none;bottom:max(24px,env(safe-area-inset-bottom))}
-.toast{background:var(--fg);color:var(--card);padding:12px 20px;font-size:13px;letter-spacing:0.05em;display:flex;align-items:center;gap:10px;border-left:3px solid var(--green);animation:toastIn 0.3s ease;pointer-events:auto;max-width:90vw}
-.toast.error{border-left-color:var(--accent)}
-@keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes toastOut{to{opacity:0;transform:translateY(20px)}}
-
-/* Footer */
-.footer{padding:24px 40px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;letter-spacing:0.05em;padding-bottom:max(24px,env(safe-area-inset-bottom))}
-
-/* Animaciones */
-.field-anim{animation:fieldFadeIn 0.4s ease}
-@keyframes fieldFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.preview-wrap.flash{animation:flash 0.5s ease}
-@keyframes flash{0%{background:var(--card)}30%{background:var(--card-2)}100%{background:var(--card)}}
-
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-button:focus-visible{outline-offset:-2px}
-
-/* Responsive */
-@media (max-width:960px){
-  .type-grid{grid-template-columns:repeat(2,1fr)}
-  .color-presets{grid-template-columns:repeat(3,1fr)}
-  .style-grid{grid-template-columns:repeat(4,1fr)}
-  .layout{grid-template-columns:1fr}
-  .left-panel{border-right:none;border-bottom:1px solid var(--line);padding:32px 20px 60px;order:2}
-  .right-panel{position:relative;height:auto;padding:32px 20px;order:1;overflow:visible}
-  .hero{padding:40px 20px}
-  .header{padding:14px 20px;padding-top:max(14px,env(safe-area-inset-top))}
-  .header-meta-item:nth-child(3){display:none}
-  .footer{padding:20px;flex-direction:column;gap:8px;text-align:center}
-  .hero-num{font-size:220px;top:-10px}
-  .preview-wrap{padding:20px}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
-@media (max-width:520px){
-  .brand-mark{font-size:24px}
-  .brand-sub{display:none}
-  .hero h1{font-size:48px}
-  .hero-inner{grid-template-columns:1fr}
-  .hero-meta{text-align:left;flex-direction:row;flex-wrap:wrap;gap:16px}
-  .field-row{grid-template-columns:1fr}
-  .color-row{grid-template-columns:1fr}
-  .export-grid,.export-actions{grid-template-columns:1fr}
-  .diag-grid{grid-template-columns:1fr}
-  .diag-item:nth-child(even){border-left:none;padding-left:0}
-  .diag-item:nth-child(odd){padding-right:0}
-  .header-meta-item:nth-child(2){display:none}
-  .sec-desc{margin-left:0;width:100%;margin-top:-8px}
+
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, #f5f3ef 0%, #ece8e1 100%);
+  overflow: hidden;
 }
-@supports (-webkit-touch-callout:none){input,select,textarea{font-size:16px}}
+
+.bg-mesh::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  animation: float 24s ease-in-out infinite;
+  will-change: transform;
+}
+.blob-1 { width: 520px; height: 520px; background: radial-gradient(circle, rgba(251,146,60,0.55), transparent 70%); top: -120px; left: -120px; }
+.blob-2 { width: 640px; height: 640px; background: radial-gradient(circle, rgba(251,191,36,0.4), transparent 70%); bottom: -240px; right: -180px; animation-delay: -8s; }
+.blob-3 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(248,113,113,0.3), transparent 70%); top: 35%; left: 45%; animation-delay: -16s; }
+
+@keyframes float {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(60px,-40px) scale(1.08); }
+  66% { transform: translate(-40px,60px) scale(0.94); }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  animation: fadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(194, 65, 12, 0.08);
+  border-radius: 100px;
+  border: 1px solid rgba(194, 65, 12, 0.15);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+h1 {
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(3.2rem, 9vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.25rem;
+  color: var(--fg);
+}
+
+h1 .italic {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 460px;
+  margin: 0 auto;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.tabs-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0;
+  animation: fadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+  padding: 0.35rem;
+  border-radius: 100px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab {
+  position: relative;
+  padding: 0.8rem 2rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 100px;
+  transition: color 0.4s ease;
+  z-index: 2;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab svg { width: 16px; height: 16px; transition: transform 0.4s ease; }
+.tab.active { color: white; }
+.tab.active svg { transform: scale(1.1); }
+.tab:hover:not(.active) { color: var(--fg); }
+
+.tab-indicator {
+  position: absolute;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  background: var(--fg);
+  border-radius: 100px;
+  transition: left 0.55s cubic-bezier(0.16, 1, 0.3, 1), width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.viewer-wrap {
+  flex: 1;
+  margin-bottom: 2rem;
+  animation: fadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.viewer-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  height: 75vh;
+  min-height: 580px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.45);
+  flex-shrink: 0;
+}
+
+/* Eliminados los dots */
+.viewer-title {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.viewer-actions { display: flex; gap: 0.4rem; }
+
+.action-btn {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.action-btn:hover {
+  background: rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.action-btn svg { width: 13px; height: 13px; }
+
+/* Contenedor del PDF */
+.pdf-container {
+  flex: 1;
+  position: relative;
+  background: white;
+  overflow: hidden;
+  /* Aseguramos que ocupe todo el espacio restante */
+  min-height: 0; /* Evita que el contenedor crezca más de la cuenta */
+}
+
+.pdf-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+  transition: opacity 0.4s ease;
+}
+
+.pdf-frame.fade { opacity: 0; }
+
+.loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.9);
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.loader.visible { opacity: 1; pointer-events: auto; }
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 2.5px solid rgba(0,0,0,0.08);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #fafaf7, #f0ede5);
+}
+
+.placeholder svg {
+  width: 56px; height: 56px;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  opacity: 0.75;
+}
+
+.placeholder h3 {
+  font-family: "Instrument Serif", serif;
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+.placeholder p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 400px;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.placeholder code {
+  background: rgba(194,65,12,0.08);
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  font-size: 0.85em;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--accent);
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem 0 1rem;
+  color: var(--muted-2);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+footer .divider {
+  width: 30px; height: 1px;
+  background: var(--border-strong);
+  margin: 0 auto 1rem;
+}
+
+@media (max-width: 768px) {
+  .container { padding: 1rem 1.25rem; }
+  header { padding: 2rem 0 1.5rem; }
+  .tabs-wrap { margin: 1.5rem 0; }
+  .tab { padding: 0.7rem 1.4rem; font-size: 0.85rem; }
+  .viewer-card { height: 70vh; min-height: 500px; border-radius: 16px; }
+  .viewer-header { padding: 0.75rem 1rem; }
+  .viewer-title { font-size: 0.72rem; }
+  .action-btn { padding: 0.4rem 0.7rem; font-size: 0.75rem; }
+  .action-btn span { display: none; }
+  .blob-1 { width: 300px; height: 300px; }
+  .blob-2 { width: 380px; height: 380px; }
+  .blob-3 { width: 260px; height: 260px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="header">
-    <div class="brand">
-      <div class="brand-mark">QR Atelier<span class="amp">®</span></div>
-      <div class="brand-sub">Editorial · Edición 01</div>
-    </div>
-    <div class="header-meta">
-      <div class="header-meta-item"><span class="dot"></span><span>STUDIO LIVE</span></div>
-      <div class="header-meta-item"><span id="current-date"></span></div>
-      <div class="header-meta-item"><span>v1.0.0</span></div>
-    </div>
-  </header>
-
-  <section class="hero">
-    <div class="hero-num">01</div>
-    <div class="hero-inner">
-      <h1>Códigos QR <span class="italic">con</span><br><span class="outline">alma editorial</span></h1>
-      <div class="hero-meta">
-        <span>ISSUE / <strong>NOV 2025</strong></span>
-        <span>FORMATO / <strong>PNG · SVG</strong></span>
-        <span>ESTUDIO / <strong>QR ATELIER</strong></span>
-      </div>
-    </div>
-  </section>
-
-  <div class="layout">
-    <div class="left-panel">
-      <div class="sec-label">
-        <span class="sec-num">01</span>
-        <span class="sec-title">¿Qué quieres que haga el código?</span>
-      </div>
-      <div class="type-grid" id="type-grid"></div>
-
-      <div class="sec-label">
-        <span class="sec-num">02</span>
-        <span class="sec-title">Contenido</span>
-        <span class="sec-desc" id="content-desc">URL</span>
-      </div>
-      <div class="field-group" id="fields-container"></div>
-
-      <div class="custom-section">
-        <div class="sec-label">
-          <span class="sec-num">03</span>
-          <span class="sec-title">Estilo</span>
-        </div>
-        
-        <div class="field-label">Paleta</div>
-        <div class="color-presets" id="color-presets"></div>
-        
-        <div class="color-row">
-          <label class="color-picker">
-            <input type="color" id="fg-color" value="#0E0E0E">
-            <div>
-              <div class="color-picker-label">Frontal</div>
-              <div class="color-picker-value" id="fg-value">#0E0E0E</div>
-            </div>
-          </label>
-          <label class="color-picker">
-            <input type="color" id="bg-color" value="#F7F1E0">
-            <div>
-              <div class="color-picker-label">Fondo</div>
-              <div class="color-picker-value" id="bg-value">#F7F1E0</div>
-            </div>
-          </label>
-        </div>
-
-        <!-- Imagen de fondo personalizada -->
-        <div class="field-label" style="margin-top:12px">Imagen de fondo (opcional)</div>
-        <div class="logo-upload" id="bg-image-upload">
-          <div class="logo-upload-content">
-            <div class="logo-upload-title">Subir imagen de fondo</div>
-            <div class="logo-upload-desc">PNG · JPG · SVG — Máx 5MB</div>
-          </div>
-          <input type="file" id="bg-image-input" accept="image/*" style="display:none">
-        </div>
-
-        <!-- Textura para módulos -->
-        <div class="field-label" style="margin-top:20px">Textura para módulos (opcional)</div>
-        <div class="logo-upload" id="module-image-upload">
-          <div class="logo-upload-content">
-            <div class="logo-upload-title">Subir textura</div>
-            <div class="logo-upload-desc">Se aplicará a los módulos oscuros</div>
-          </div>
-          <input type="file" id="module-image-input" accept="image/*" style="display:none">
-        </div>
-
-        <div class="field-label">Patrón de módulos</div>
-        <div class="style-grid" id="module-style-grid">
-          <div class="style-option active" data-style="square"><svg class="style-preview" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="rounded"><svg class="style-preview" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="dot"><svg class="style-preview" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="classy"><svg class="style-preview" viewBox="0 0 24 24"><path d="M4 12 L12 4 L20 12 L12 20 Z" fill="currentColor"/></svg></div>
-        </div>
-
-        <div class="field-label">Esquinas (patrón de búsqueda)</div>
-        <div class="style-grid" id="corner-style-grid">
-          <div class="style-option active" data-style="square"><svg class="style-preview" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="rounded"><svg class="style-preview" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="2" fill="none"/><rect x="9" y="9" width="6" height="6" rx="2" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="dot"><svg class="style-preview" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div>
-          <div class="style-option" data-style="classy"><svg class="style-preview" viewBox="0 0 24 24"><path d="M12 4 Q20 4 20 12 Q20 20 12 20" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div>
-        </div>
-
-        <div class="field-label">Logo central (opcional)</div>
-        <div class="logo-upload" id="logo-upload">
-          <div class="logo-upload-content">
-            <div class="logo-upload-title">Subir logo</div>
-            <div class="logo-upload-desc">PNG · JPG · SVG — Máx 2MB</div>
-          </div>
-          <input type="file" id="logo-input" accept="image/*" style="display:none">
-        </div>
-
-        <!-- Control de tamaño del logo -->
-        <div class="field" style="margin-top:16px">
-          <label class="field-label" for="logo-size-range">Tamaño del logo: <span id="logo-size-value">22%</span></label>
-          <input type="range" id="logo-size-range" min="10" max="40" value="22" step="1" style="width:100%">
-        </div>
-
-        <div class="field-label" style="margin-top:20px">Nivel de corrección</div>
-        <div class="error-level" id="error-level">
-          <div class="error-level-option" data-level="L"><div class="error-level-letter">L</div><div class="error-level-name">7%</div></div>
-          <div class="error-level-option active" data-level="M"><div class="error-level-letter">M</div><div class="error-level-name">15%</div></div>
-          <div class="error-level-option" data-level="Q"><div class="error-level-letter">Q</div><div class="error-level-name">25%</div></div>
-          <div class="error-level-option" data-level="H"><div class="error-level-letter">H</div><div class="error-level-name">30%</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="right-panel">
-      <div class="sec-label">
-        <span class="sec-num">04</span>
-        <span class="sec-title">Vista previa</span>
-        <span class="sec-desc" id="preview-status"><span class="preview-status-dot"></span>Listo</span>
-      </div>
-      <div class="preview-wrap" id="preview-wrap">
-        <div class="preview-label">QR · LIVE</div>
-        <div class="preview-corner tl"></div>
-        <div class="preview-corner tr"></div>
-        <div class="preview-corner bl"></div>
-        <div class="preview-corner br"></div>
-        <canvas id="qr-canvas"></canvas>
-      </div>
-
-      <div class="diag">
-        <div class="diag-title">Diagnóstico</div>
-        <div class="diag-grid">
-          <div class="diag-item"><div class="diag-label">Tipo</div><div class="diag-value" id="d-type">URL</div></div>
-          <div class="diag-item"><div class="diag-label">Versión</div><div class="diag-value" id="d-version">1</div></div>
-          <div class="diag-item"><div class="diag-label">Dimensiones</div><div class="diag-value" id="d-dims">21<small>×21 módulos</small></div></div>
-          <div class="diag-item"><div class="diag-label">Corrección</div><div class="diag-value" id="d-error">M<small>15%</small></div></div>
-          <div class="diag-item"><div class="diag-label">Bytes</div><div class="diag-value" id="d-bytes">0<small>B</small></div></div>
-          <div class="diag-item"><div class="diag-label">Modo</div><div class="diag-value" id="d-mode">Byte</div></div>
-        </div>
-        <div class="capacity-bar">
-          <div class="capacity-bar-track"><div class="capacity-bar-fill" id="cap-fill" style="width:0%"></div></div>
-          <div class="capacity-bar-label"><span>Capacidad utilizada</span><span id="cap-pct">0%</span></div>
-        </div>
-      </div>
-
-      <div class="export">
-        <div class="diag-title">Exportar</div>
-        <div class="export-grid">
-          <button class="export-btn" id="export-png"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>PNG</button>
-          <button class="export-btn" id="export-svg"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>SVG</button>
-        </div>
-        <div class="export-actions">
-          <button class="export-btn secondary" id="save-project">Guardar proyecto</button>
-          <button class="export-btn secondary" id="copy-content">Copiar contenido</button>
-        </div>
-      </div>
-    </div>
+  <div class="bg-mesh">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   </div>
 
-  <footer class="footer">
-    <div>QR ATELIER © 2025 — Editorial QR Studio</div>
-    <div>SIN TRACKING · 100% LOCAL</div>
-  </footer>
-</div>
+  <div class="container">
+    <header>
+      <div class="eyebrow">Carta Digital</div>
+      <h1>Alimentos <span class="italic">&amp;</span> Bebidas</h1>
+      <p class="subtitle">Explora nuestra selección cuidadosamente curada, pensada para acompañar cada momento.</p>
+    </header>
 
-<div class="toast-wrap" id="toast-wrap"></div>
-
-<script>
-// ===== Estado global =====
-const state = {
-  type: 'url',
-  data: {
-    url: 'https://qratelier.studio',
-    text: '',
-    email: { address: '', subject: '', body: '' },
-    phone: '',
-    sms: { number: '', message: '' },
-    wifi: { ssid: '', password: '', encryption: 'WPA', hidden: false },
-    vcard: { name: '', phone: '', email: '', org: '' },
-    geo: { lat: '', lng: '' }
-  },
-  style: {
-    fgColor: '#0E0E0E',
-    bgColor: '#F7F1E0',
-    moduleStyle: 'square',
-    cornerStyle: 'square',
-    logo: null,
-    backgroundImage: null,
-    moduleImage: null,
-    logoSize: 22
-  },
-  errorLevel: 'M'
-};
-
-// ===== Tipos de contenido =====
-const types = [
-  { id: 'url', name: 'Sitio web', icon: '<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>' },
-  { id: 'text', name: 'Texto', icon: '<path d="M4 7V5h16v2M9 5v14M7 19h4M14 19h4M16 5v14"/>' },
-  { id: 'email', name: 'Email', icon: '<path d="M3 7l9 6 9-6M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7a2 2 0 012-2h14a2 2 0 012 2"/>' },
-  { id: 'phone', name: 'Teléfono', icon: '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>' },
-  { id: 'sms', name: 'SMS', icon: '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>' },
-  { id: 'wifi', name: 'WiFi', icon: '<path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0"/><path d="M12 20h.01"/>' },
-  { id: 'vcard', name: 'Contacto', icon: '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
-  { id: 'geo', name: 'Ubicación', icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>' }
-];
-
-// ===== Paletas predefinidas =====
-const presets = [
-  { name: 'Classic', fg: '#0E0E0E', bg: '#FFFFFF' },
-  { name: 'Editorial', fg: '#0E0E0E', bg: '#F7F1E0' },
-  { name: 'Vogue', fg: '#C8202D', bg: '#F7F1E0' },
-  { name: 'Gold', fg: '#B89343', bg: '#0E0E0E' },
-  { name: 'Forest', fg: '#2D5F3F', bg: '#F7F1E0' },
-  { name: 'Mono', fg: '#1A1A1A', bg: '#E2D9C0' }
-];
-
-let currentQR = null;
-let logoImage = null;
-let backgroundImageObj = null;
-let moduleImageObj = null;
-
-// ===== Init =====
-function init() {
-  renderTypeGrid();
-  renderColorPresets();
-  renderFields();
-  bindEvents();
-  updateDate();
-  renderQR();
-}
-
-function updateDate() {
-  const d = new Date();
-  const opts = { day: '2-digit', month: 'short', year: 'numeric' };
-  document.getElementById('current-date').textContent = d.toLocaleDateString('es-ES', opts).toUpperCase();
-}
-
-function renderTypeGrid() {
-  const grid = document.getElementById('type-grid');
-  grid.innerHTML = types.map(t => `
-    <div class="type-card ${t.id === state.type ? 'active' : ''}" data-type="${t.id}">
-      <div class="type-icon"><svg viewBox="0 0 24 24">${t.icon}</svg></div>
-      <div class="type-name">${t.name}</div>
+    <div class="tabs-wrap">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="food" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11h18M5 11V5a1 1 0 011-1h12a1 1 0 011 1v6M5 11v6a2 2 0 002 2h10a2 2 0 002-2v-6"/>
+            <path d="M8 7v4M12 7v4M16 7v4"/>
+          </svg>
+          Alimentos
+        </button>
+        <button class="tab" data-tab="drinks" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 3h14l-2 18H7L5 3z"/>
+            <path d="M5 8h14"/>
+          </svg>
+          Bebidas
+        </button>
+        <div class="tab-indicator"></div>
+      </div>
     </div>
-  `).join('');
-  grid.querySelectorAll('.type-card').forEach(card => {
-    card.addEventListener('click', () => {
-      state.type = card.dataset.type;
-      grid.querySelectorAll('.type-card').forEach(c => c.classList.toggle('active', c === card));
-      renderFields();
-      renderQR();
-    });
-  });
-}
 
-function renderColorPresets() {
-  const grid = document.getElementById('color-presets');
-  grid.innerHTML = presets.map((p, i) => `
-    <div class="preset" data-idx="${i}" title="${p.name}">
-      <div class="swatch" style="background:${p.fg};border:1px solid ${p.bg === '#FFFFFF' ? '#ccc' : p.bg}"></div>
-    </div>
-  `).join('');
-  grid.querySelectorAll('.preset').forEach(el => {
-    el.addEventListener('click', () => {
-      const p = presets[parseInt(el.dataset.idx)];
-      state.style.fgColor = p.fg;
-      state.style.bgColor = p.bg;
-      document.getElementById('fg-color').value = p.fg;
-      document.getElementById('bg-color').value = p.bg;
-      document.getElementById('fg-value').textContent = p.fg.toUpperCase();
-      document.getElementById('bg-value').textContent = p.bg.toUpperCase();
-      grid.querySelectorAll('.preset').forEach(e => e.classList.toggle('active', e === el));
-      renderQR();
-    });
-  });
-}
-
-function escape(s) {
-  if (s === undefined || s === null) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function renderFields() {
-  const container = document.getElementById('fields-container');
-  const desc = document.getElementById('content-desc');
-  const t = types.find(x => x.id === state.type);
-  desc.textContent = t.name;
-  let html = '';
-  switch(state.type) {
-    case 'url':
-      html = `<div class="field field-anim"><label class="field-label">URL</label><input type="text" class="field-input" id="f-url" value="${escape(state.data.url)}" placeholder="https://ejemplo.com"></div>`;
-      break;
-    case 'text':
-      html = `<div class="field field-anim"><label class="field-label">Texto</label><textarea class="field-textarea" id="f-text" placeholder="Escribe el texto que quieres codificar">${escape(state.data.text)}</textarea></div>`;
-      break;
-    case 'email':
-      html = `
-        <div class="field field-anim"><label class="field-label">Correo electrónico</label><input type="email" class="field-input" id="f-email" value="${escape(state.data.email.address)}" placeholder="hola@ejemplo.com"></div>
-        <div class="field field-anim"><label class="field-label">Asunto</label><input type="text" class="field-input" id="f-email-subject" value="${escape(state.data.email.subject)}" placeholder="Asunto del correo"></div>
-        <div class="field field-anim"><label class="field-label">Mensaje</label><textarea class="field-textarea" id="f-email-body" placeholder="Cuerpo del mensaje">${escape(state.data.email.body)}</textarea></div>`;
-      break;
-    case 'phone':
-      html = `<div class="field field-anim"><label class="field-label">Número de teléfono</label><input type="tel" class="field-input" id="f-phone" value="${escape(state.data.phone)}" placeholder="+34 600 000 000"></div>`;
-      break;
-    case 'sms':
-      html = `
-        <div class="field field-anim"><label class="field-label">Número</label><input type="tel" class="field-input" id="f-sms-number" value="${escape(state.data.sms.number)}" placeholder="+34 600 000 000"></div>
-        <div class="field field-anim"><label class="field-label">Mensaje</label><textarea class="field-textarea" id="f-sms-message" placeholder="Mensaje SMS">${escape(state.data.sms.message)}</textarea></div>`;
-      break;
-    case 'wifi':
-      html = `
-        <div class="field field-anim"><label class="field-label">Nombre de red (SSID)</label><input type="text" class="field-input" id="f-wifi-ssid" value="${escape(state.data.wifi.ssid)}" placeholder="MiRedWiFi"></div>
-        <div class="field field-anim"><label class="field-label">Contraseña</label><input type="text" class="field-input" id="f-wifi-password" value="${escape(state.data.wifi.password)}" placeholder="••••••••"></div>
-        <div class="field-row field-anim">
-          <div class="field"><label class="field-label">Encriptación</label>
-            <select class="field-select" id="f-wifi-encryption">
-              <option value="WPA" ${state.data.wifi.encryption==='WPA'?'selected':''}>WPA/WPA2</option>
-              <option value="WEP" ${state.data.wifi.encryption==='WEP'?'selected':''}>WEP</option>
-              <option value="nopass" ${state.data.wifi.encryption==='nopass'?'selected':''}>Sin contraseña</option>
-            </select>
+    <div class="viewer-wrap">
+      <div class="viewer-card">
+        <div class="viewer-header">
+          <!-- Se eliminaron los dots -->
+          <div class="viewer-title" id="viewerTitle">menú-alimentos</div>
+          <div class="viewer-actions">
+            <a href="#" id="downloadBtn" target="_blank" rel="noopener" class="action-btn" title="Descargar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Descargar</span>
+            </a>
+            <a href="#" id="openFull" target="_blank" rel="noopener" class="action-btn" title="Abrir en nueva pestaña">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              <span>Abrir</span>
+            </a>
           </div>
-          <div class="field"><label class="field-label">Red oculta</label>
-            <select class="field-select" id="f-wifi-hidden">
-              <option value="false" ${!state.data.wifi.hidden?'selected':''}>No</option>
-              <option value="true" ${state.data.wifi.hidden?'selected':''}>Sí</option>
-            </select>
-          </div>
-        </div>`;
-      break;
-    case 'vcard':
-      html = `
-        <div class="field field-anim"><label class="field-label">Nombre completo</label><input type="text" class="field-input" id="f-vcard-name" value="${escape(state.data.vcard.name)}" placeholder="Ana García"></div>
-        <div class="field-row field-anim">
-          <div class="field"><label class="field-label">Teléfono</label><input type="tel" class="field-input" id="f-vcard-phone" value="${escape(state.data.vcard.phone)}" placeholder="+34 600 000 000"></div>
-          <div class="field"><label class="field-label">Email</label><input type="email" class="field-input" id="f-vcard-email" value="${escape(state.data.vcard.email)}" placeholder="ana@ejemplo.com"></div>
         </div>
-        <div class="field field-anim"><label class="field-label">Organización</label><input type="text" class="field-input" id="f-vcard-org" value="${escape(state.data.vcard.org)}" placeholder="Empresa S.L."></div>`;
-      break;
-    case 'geo':
-      html = `<div class="field-row field-anim">
-          <div class="field"><label class="field-label">Latitud</label><input type="text" class="field-input" id="f-geo-lat" value="${escape(state.data.geo.lat)}" placeholder="40.4168"></div>
-          <div class="field"><label class="field-label">Longitud</label><input type="text" class="field-input" id="f-geo-lng" value="${escape(state.data.geo.lng)}" placeholder="-3.7038"></div>
-        </div>`;
-      break;
-  }
-  container.innerHTML = html;
-  bindFieldEvents();
-}
 
-function bindFieldEvents() {
-  const handlers = {
-    'f-url': v => state.data.url = v,
-    'f-text': v => state.data.text = v,
-    'f-email': v => state.data.email.address = v,
-    'f-email-subject': v => state.data.email.subject = v,
-    'f-email-body': v => state.data.email.body = v,
-    'f-phone': v => state.data.phone = v,
-    'f-sms-number': v => state.data.sms.number = v,
-    'f-sms-message': v => state.data.sms.message = v,
-    'f-wifi-ssid': v => state.data.wifi.ssid = v,
-    'f-wifi-password': v => state.data.wifi.password = v,
-    'f-wifi-encryption': v => state.data.wifi.encryption = v,
-    'f-wifi-hidden': v => state.data.wifi.hidden = v === 'true',
-    'f-vcard-name': v => state.data.vcard.name = v,
-    'f-vcard-phone': v => state.data.vcard.phone = v,
-    'f-vcard-email': v => state.data.vcard.email = v,
-    'f-vcard-org': v => state.data.vcard.org = v,
-    'f-geo-lat': v => state.data.geo.lat = v,
-    'f-geo-lng': v => state.data.geo.lng = v
-  };
-  Object.keys(handlers).forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('input', () => { handlers[id](el.value); renderQR(); });
-  });
-}
-
-function bindEvents() {
-  document.getElementById('fg-color').addEventListener('input', e => {
-    state.style.fgColor = e.target.value;
-    document.getElementById('fg-value').textContent = e.target.value.toUpperCase();
-    document.querySelectorAll('.preset').forEach(p => p.classList.remove('active'));
-    renderQR();
-  });
-  document.getElementById('bg-color').addEventListener('input', e => {
-    state.style.bgColor = e.target.value;
-    document.getElementById('bg-value').textContent = e.target.value.toUpperCase();
-    document.querySelectorAll('.preset').forEach(p => p.classList.remove('active'));
-    renderQR();
-  });
-  document.querySelectorAll('#module-style-grid .style-option').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('#module-style-grid .style-option').forEach(e => e.classList.remove('active'));
-      el.classList.add('active');
-      state.style.moduleStyle = el.dataset.style;
-      renderQR();
-    });
-  });
-  document.querySelectorAll('#corner-style-grid .style-option').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('#corner-style-grid .style-option').forEach(e => e.classList.remove('active'));
-      el.classList.add('active');
-      state.style.cornerStyle = el.dataset.style;
-      renderQR();
-    });
-  });
-
-  // Logo upload
-  const logoUpload = document.getElementById('logo-upload');
-  const logoInput = document.getElementById('logo-input');
-  logoUpload.addEventListener('click', () => logoInput.click());
-  logoInput.addEventListener('change', e => { if (e.target.files[0]) handleLogoFile(e.target.files[0]); });
-  logoUpload.addEventListener('dragover', e => { e.preventDefault(); logoUpload.style.background = 'var(--card-2)'; });
-  logoUpload.addEventListener('dragleave', () => { logoUpload.style.background = ''; });
-  logoUpload.addEventListener('drop', e => {
-    e.preventDefault();
-    logoUpload.style.background = '';
-    if (e.dataTransfer.files[0]) handleLogoFile(e.dataTransfer.files[0]);
-  });
-
-  // Background image upload
-  const bgUpload = document.getElementById('bg-image-upload');
-  const bgInput = document.getElementById('bg-image-input');
-  bgUpload.addEventListener('click', () => bgInput.click());
-  bgInput.addEventListener('change', e => { if (e.target.files[0]) handleBackgroundFile(e.target.files[0]); });
-  bgUpload.addEventListener('dragover', e => { e.preventDefault(); bgUpload.style.background = 'var(--card-2)'; });
-  bgUpload.addEventListener('dragleave', () => { bgUpload.style.background = ''; });
-  bgUpload.addEventListener('drop', e => {
-    e.preventDefault();
-    bgUpload.style.background = '';
-    if (e.dataTransfer.files[0]) handleBackgroundFile(e.dataTransfer.files[0]);
-  });
-
-  // Module texture upload
-  const moduleUpload = document.getElementById('module-image-upload');
-  const moduleInput = document.getElementById('module-image-input');
-  moduleUpload.addEventListener('click', () => moduleInput.click());
-  moduleInput.addEventListener('change', e => { if (e.target.files[0]) handleModuleFile(e.target.files[0]); });
-  moduleUpload.addEventListener('dragover', e => { e.preventDefault(); moduleUpload.style.background = 'var(--card-2)'; });
-  moduleUpload.addEventListener('dragleave', () => { moduleUpload.style.background = ''; });
-  moduleUpload.addEventListener('drop', e => {
-    e.preventDefault();
-    moduleUpload.style.background = '';
-    if (e.dataTransfer.files[0]) handleModuleFile(e.dataTransfer.files[0]);
-  });
-
-  // Logo size slider
-  const sizeSlider = document.getElementById('logo-size-range');
-  sizeSlider.addEventListener('input', () => {
-    state.style.logoSize = parseInt(sizeSlider.value);
-    document.getElementById('logo-size-value').textContent = state.style.logoSize + '%';
-    renderQR();
-  });
-
-  document.querySelectorAll('#error-level .error-level-option').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('#error-level .error-level-option').forEach(e => e.classList.remove('active'));
-      el.classList.add('active');
-      state.errorLevel = el.dataset.level;
-      renderQR();
-    });
-  });
-  document.getElementById('export-png').addEventListener('click', exportPNG);
-  document.getElementById('export-svg').addEventListener('click', exportSVG);
-  document.getElementById('copy-content').addEventListener('click', copyContent);
-  document.getElementById('save-project').addEventListener('click', saveProject);
-}
-
-function handleLogoFile(file) {
-  if (file.size > 2 * 1024 * 1024) { toast('El archivo supera los 2MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    state.style.logo = e.target.result;
-    const img = new Image();
-    img.onload = () => { logoImage = img; renderQR(); };
-    img.src = e.target.result;
-    renderLogoPreview(file);
-    state.errorLevel = 'H';
-    document.querySelectorAll('#error-level .error-level-option').forEach(el => {
-      el.classList.toggle('active', el.dataset.level === 'H');
-    });
-    toast('Logo cargado · corrección H');
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleBackgroundFile(file) {
-  if (file.size > 5 * 1024 * 1024) { toast('El archivo supera los 5MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    state.style.backgroundImage = e.target.result;
-    const img = new Image();
-    img.onload = () => { backgroundImageObj = img; renderQR(); };
-    img.src = e.target.result;
-    renderBackgroundPreview(file);
-    toast('Imagen de fondo cargada');
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleModuleFile(file) {
-  if (file.size > 5 * 1024 * 1024) { toast('El archivo supera los 5MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    state.style.moduleImage = e.target.result;
-    const img = new Image();
-    img.onload = () => { moduleImageObj = img; renderQR(); };
-    img.src = e.target.result;
-    renderModulePreview(file);
-    toast('Textura de módulos cargada');
-  };
-  reader.readAsDataURL(file);
-}
-
-function renderLogoPreview(file) {
-  const upload = document.getElementById('logo-upload');
-  const sizeKB = (file.size / 1024).toFixed(1);
-  upload.classList.add('has-logo');
-  upload.innerHTML = `
-    <div class="logo-preview">
-      <img src="${state.style.logo}" alt="logo">
-      <div class="logo-info">
-        <div class="logo-info-name">${escape(file.name)}</div>
-        <div class="logo-info-size">${sizeKB} KB</div>
+        <!-- Contenedor del PDF -->
+        <div class="pdf-container">
+          <div class="loader" id="loader">
+            <div class="spinner"></div>
+          </div>
+          <div class="placeholder" id="placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="13" y2="17"/>
+            </svg>
+            <h3>Configura tu menú</h3>
+            <p>Abre este archivo HTML y reemplaza en <code>MENU_PDFS</code> los valores placeholder por tus enlaces de Google Drive.</p>
+          </div>
+          <iframe class="pdf-frame" id="pdfFrame" src="" title="Visor de PDF" style="opacity:0;"></iframe>
+        </div>
       </div>
     </div>
-    <button class="logo-remove" id="logo-remove" type="button">Quitar logo</button>
-    <input type="file" id="logo-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('logo-remove').addEventListener('click', e => {
-    e.stopPropagation();
-    state.style.logo = null;
-    logoImage = null;
-    resetLogoUpload();
-    renderQR();
-    toast('Logo eliminado');
-  });
-  document.getElementById('logo-input').addEventListener('change', e => { if (e.target.files[0]) handleLogoFile(e.target.files[0]); });
-}
 
-function resetLogoUpload() {
-  const upload = document.getElementById('logo-upload');
-  upload.classList.remove('has-logo');
-  upload.innerHTML = `
-    <div class="logo-upload-content">
-      <div class="logo-upload-title">Subir logo</div>
-      <div class="logo-upload-desc">PNG · JPG · SVG — Máx 2MB</div>
-    </div>
-    <input type="file" id="logo-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('logo-input').addEventListener('change', e => { if (e.target.files[0]) handleLogoFile(e.target.files[0]); });
-}
+    <footer>
+      <div class="divider"></div>
+      <p>Experiencia de carta digital · Diseñado con detalle</p>
+    </footer>
+  </div>
 
-function renderBackgroundPreview(file) {
-  const upload = document.getElementById('bg-image-upload');
-  const sizeKB = (file.size / 1024).toFixed(1);
-  upload.classList.add('has-logo');
-  upload.innerHTML = `
-    <div class="logo-preview">
-      <img src="${state.style.backgroundImage}" alt="fondo">
-      <div class="logo-info">
-        <div class="logo-info-name">${escape(file.name)}</div>
-        <div class="logo-info-size">${sizeKB} KB</div>
-      </div>
-    </div>
-    <button class="logo-remove" id="bg-remove" type="button">Quitar fondo</button>
-    <input type="file" id="bg-image-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('bg-remove').addEventListener('click', e => {
-    e.stopPropagation();
-    state.style.backgroundImage = null;
-    backgroundImageObj = null;
-    resetBackgroundUpload();
-    renderQR();
-    toast('Imagen de fondo eliminada');
-  });
-  document.getElementById('bg-image-input').addEventListener('change', e => { if (e.target.files[0]) handleBackgroundFile(e.target.files[0]); });
-}
+  <script>
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  CONFIGURACIÓN DE TUS PDFs                                 ║
+    // ║  Coloca el ID de cada PDF de Google Drive                  ║
+    // ╚══════════════════════════════════════════════════════════════╝
 
-function resetBackgroundUpload() {
-  const upload = document.getElementById('bg-image-upload');
-  upload.classList.remove('has-logo');
-  upload.innerHTML = `
-    <div class="logo-upload-content">
-      <div class="logo-upload-title">Subir imagen de fondo</div>
-      <div class="logo-upload-desc">PNG · JPG · SVG — Máx 5MB</div>
-    </div>
-    <input type="file" id="bg-image-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('bg-image-input').addEventListener('change', e => { if (e.target.files[0]) handleBackgroundFile(e.target.files[0]); });
-}
+    const MENU_PDFS = {
+      food:   { id: "1D7Kt2XyCJrCXYB6EkZfvjPuk1rJ6ZaIf", title: "menú-alimentos" },
+      drinks: { id: "18uHy7L4yf1rcDDxjCNJubnqYpc4f72v5", title: "menú-bebidas" }
+    };
 
-function renderModulePreview(file) {
-  const upload = document.getElementById('module-image-upload');
-  const sizeKB = (file.size / 1024).toFixed(1);
-  upload.classList.add('has-logo');
-  upload.innerHTML = `
-    <div class="logo-preview">
-      <img src="${state.style.moduleImage}" alt="textura">
-      <div class="logo-info">
-        <div class="logo-info-name">${escape(file.name)}</div>
-        <div class="logo-info-size">${sizeKB} KB</div>
-      </div>
-    </div>
-    <button class="logo-remove" id="module-remove" type="button">Quitar textura</button>
-    <input type="file" id="module-image-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('module-remove').addEventListener('click', e => {
-    e.stopPropagation();
-    state.style.moduleImage = null;
-    moduleImageObj = null;
-    resetModuleUpload();
-    renderQR();
-    toast('Textura eliminada');
-  });
-  document.getElementById('module-image-input').addEventListener('change', e => { if (e.target.files[0]) handleModuleFile(e.target.files[0]); });
-}
+    // ─────────────────────────────────────────────────────────
+    //  NO EDITAR DEBAJO DE ESTA LÍNEA
+    // ─────────────────────────────────────────────────────────
 
-function resetModuleUpload() {
-  const upload = document.getElementById('module-image-upload');
-  upload.classList.remove('has-logo');
-  upload.innerHTML = `
-    <div class="logo-upload-content">
-      <div class="logo-upload-title">Subir textura</div>
-      <div class="logo-upload-desc">Se aplicará a los módulos oscuros</div>
-    </div>
-    <input type="file" id="module-image-input" accept="image/*" style="display:none">
-  `;
-  document.getElementById('module-image-input').addEventListener('change', e => { if (e.target.files[0]) handleModuleFile(e.target.files[0]); });
-}
+    const frame = document.getElementById('pdfFrame');
+    const loader = document.getElementById('loader');
+    const placeholder = document.getElementById('placeholder');
+    const openFullBtn = document.getElementById('openFull');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const tabs = document.querySelectorAll('.tab');
+    const indicator = document.querySelector('.tab-indicator');
 
-// ===== Datos a codificar =====
-function getDataString() {
-  switch(state.type) {
-    case 'url': return state.data.url || ' ';
-    case 'text': return state.data.text || ' ';
-    case 'email': {
-      const params = [];
-      if (state.data.email.subject) params.push(`subject=${encodeURIComponent(state.data.email.subject)}`);
-      if (state.data.email.body) params.push(`body=${encodeURIComponent(state.data.email.body)}`);
-      return `mailto:${state.data.email.address}${params.length ? '?' + params.join('&') : ''}`;
+    let currentTab = 'food';
+
+    function updateIndicator(tabName) {
+      const activeBtn = document.querySelector(`.tab[data-tab="${tabName}"]`);
+      if (!activeBtn) return;
+      const rect = activeBtn.getBoundingClientRect();
+      const parentRect = activeBtn.parentElement.getBoundingClientRect();
+      indicator.style.left = (rect.left - parentRect.left) + 'px';
+      indicator.style.width = rect.width + 'px';
     }
-    case 'phone': return `tel:${state.data.phone}`;
-    case 'sms': return `smsto:${state.data.sms.number}:${state.data.sms.message}`;
-    case 'wifi': {
-      const esc = s => s.replace(/([\\;,"'])/g, '\\$1');
-      return `WIFI:T:${state.data.wifi.encryption};S:${esc(state.data.wifi.ssid)};P:${esc(state.data.wifi.password)};H:${state.data.wifi.hidden};;`;
+
+    function showPlaceholder() {
+      frame.style.opacity = '0';
+      frame.src = 'about:blank';
+      placeholder.style.display = 'flex';
+      loader.classList.remove('visible');
+      openFullBtn.href = '#';
+      downloadBtn.href = '#';
     }
-    case 'vcard':
-      return `BEGIN:VCARD\nVERSION:3.0\nFN:${state.data.vcard.name}\nTEL:${state.data.vcard.phone}\nEMAIL:${state.data.vcard.email}\nORG:${state.data.vcard.org}\nEND:VCARD`;
-    case 'geo': return `geo:${state.data.geo.lat},${state.data.geo.lng}`;
-  }
-  return ' ';
-}
 
-// ===== Render QR (con dimensiones dinámicas) =====
-function renderQR() {
-  const data = getDataString();
-  const status = document.getElementById('preview-status');
-  const wrap = document.getElementById('preview-wrap');
-  wrap.classList.remove('flash');
-  void wrap.offsetWidth;
-  wrap.classList.add('flash');
-  try {
-    const qr = qrcode(0, state.errorLevel);
-    qr.addData(data);
-    qr.make();
-    currentQR = qr;
-    drawCanvas(qr);
-    updateDiagnostics(qr, data);
-    status.innerHTML = '<span class="preview-status-dot"></span>Listo';
-  } catch (e) {
-    status.innerHTML = '<span class="preview-status-dot" style="background:var(--accent)"></span>Demasiado largo';
-    if (state.errorLevel !== 'L') {
-      try {
-        const qr = qrcode(0, 'L');
-        qr.addData(data);
-        qr.make();
-        currentQR = qr;
-        drawCanvas(qr);
-        updateDiagnostics(qr, data);
-      } catch(e2) { console.error(e2); }
-    }
-  }
-}
-
-function drawCanvas(qr) {
-  const canvas = document.getElementById('qr-canvas');
-  const container = document.getElementById('preview-wrap');
-  const rect = container.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  // El tamaño visible del canvas debe ser el tamaño del contenedor menos el padding (64px en total)
-  const displaySize = Math.max(100, rect.width - 64); // mínimo 100px para evitar cero
-  const internalSize = Math.floor(displaySize * dpr);
-  canvas.width = internalSize;
-  canvas.height = internalSize;
-  canvas.style.width = displaySize + 'px';
-  canvas.style.height = displaySize + 'px';
-  
-  const ctx = canvas.getContext('2d');
-  const size = canvas.width; // tamaño interno
-  
-  // Fondo: usar imagen si existe, si no color
-  if (backgroundImageObj) {
-    ctx.drawImage(backgroundImageObj, 0, 0, size, size);
-  } else {
-    ctx.fillStyle = state.style.bgColor;
-    ctx.fillRect(0, 0, size, size);
-  }
-  
-  const moduleCount = qr.getModuleCount();
-  const margin = size * 0.08;
-  const moduleSize = (size - margin * 2) / moduleCount;
-  
-  // Preparar patrón para módulos si hay textura
-  let modulePattern = null;
-  if (moduleImageObj) {
-    const patternCanvas = document.createElement('canvas');
-    patternCanvas.width = moduleSize;
-    patternCanvas.height = moduleSize;
-    const patternCtx = patternCanvas.getContext('2d');
-    patternCtx.drawImage(moduleImageObj, 0, 0, moduleSize, moduleSize);
-    modulePattern = ctx.createPattern(patternCanvas, 'repeat');
-  }
-
-  // Módulos de datos
-  for (let r = 0; r < moduleCount; r++) {
-    for (let c = 0; c < moduleCount; c++) {
-      if (qr.isDark(r, c) && !isFinderArea(r, c, moduleCount)) {
-        drawModule(ctx, margin + c * moduleSize, margin + r * moduleSize, moduleSize, state.style.moduleStyle, state.style.fgColor, modulePattern);
+    function loadPDF(tabName) {
+      const data = MENU_PDFS[tabName];
+      if (!data || !data.id) {
+        showPlaceholder();
+        return;
       }
+
+      const previewUrl = `https://drive.google.com/file/d/${data.id}/preview?usp=sharing&embedded=true`;
+      const viewUrl = `https://drive.google.com/file/d/${data.id}/view?usp=sharing`;
+
+      viewerTitle.textContent = data.title;
+      placeholder.style.display = 'none';
+      loader.classList.add('visible');
+      frame.classList.add('fade');
+
+      // Pequeño retraso para que el loader se muestre antes de cargar el iframe
+      setTimeout(() => {
+        frame.src = previewUrl;
+        openFullBtn.href = viewUrl;
+        downloadBtn.href = viewUrl;
+      }, 300);
+
+      frame.onload = () => {
+        loader.classList.remove('visible');
+        frame.classList.remove('fade');
+        frame.style.opacity = '1';
+      };
+
+      // Fallback por si el evento onload no se dispara
+      setTimeout(() => {
+        loader.classList.remove('visible');
+        frame.classList.remove('fade');
+        frame.style.opacity = '1';
+      }, 3000);
     }
-  }
-  
-  // Finder patterns
-  drawFinder(ctx, margin, margin, moduleSize, state.style);
-  drawFinder(ctx, margin + (moduleCount - 7) * moduleSize, margin, moduleSize, state.style);
-  drawFinder(ctx, margin, margin + (moduleCount - 7) * moduleSize, moduleSize, state.style);
-  
-  // Logo
-  if (logoImage) {
-    const logoSize = size * (state.style.logoSize / 100);
-    const x = (size - logoSize) / 2;
-    const y = (size - logoSize) / 2;
-    const padding = logoSize * 0.1;
-    ctx.fillStyle = state.style.bgColor;
-    const r = logoSize * 0.08;
-    roundRect(ctx, x - padding, y - padding, logoSize + padding * 2, logoSize + padding * 2, r);
-    ctx.fill();
-    ctx.drawImage(logoImage, x, y, logoSize, logoSize);
-  }
-}
 
-function isFinderArea(r, c, count) {
-  return (r < 7 && c < 7) || (r < 7 && c >= count - 7) || (r >= count - 7 && c < 7);
-}
+    function setActiveTab(tabName) {
+      if (tabName === currentTab) return; // evitar recargas innecesarias
+      currentTab = tabName;
 
-function drawModule(ctx, x, y, size, style, color, pattern = null) {
-  if (pattern) {
-    ctx.fillStyle = pattern;
-  } else {
-    ctx.fillStyle = color;
-  }
-  const padding = size * 0.05;
-  const s = size - padding * 2;
-  switch(style) {
-    case 'square':
-      ctx.fillRect(x, y, size, size);
-      break;
-    case 'rounded':
-      roundRect(ctx, x + padding, y + padding, s, s, size * 0.3);
-      ctx.fill();
-      break;
-    case 'dot':
-      ctx.beginPath();
-      ctx.arc(x + size/2, y + size/2, size * 0.42, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    case 'classy':
-      ctx.beginPath();
-      ctx.moveTo(x + size/2, y + padding);
-      ctx.lineTo(x + size - padding, y + size/2);
-      ctx.lineTo(x + size/2, y + size - padding);
-      ctx.lineTo(x + padding, y + size/2);
-      ctx.closePath();
-      ctx.fill();
-      break;
-  }
-}
+      tabs.forEach(t => {
+        const isActive = t.dataset.tab === tabName;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive);
+      });
 
-function drawFinder(ctx, x, y, moduleSize, style) {
-  const size = moduleSize * 7;
-  const inner = moduleSize * 5;
-  const innerX = x + moduleSize;
-  const innerY = y + moduleSize;
-  const dot = moduleSize * 3;
-  const dotX = x + moduleSize * 2;
-  const dotY = y + moduleSize * 2;
-  ctx.fillStyle = style.fgColor;
-  switch(style.cornerStyle) {
-    case 'square':
-      ctx.fillRect(x, y, size, size);
-      ctx.fillStyle = style.bgColor;
-      ctx.fillRect(innerX, innerY, inner, inner);
-      ctx.fillStyle = style.fgColor;
-      ctx.fillRect(dotX, dotY, dot, dot);
-      break;
-    case 'rounded':
-      roundRect(ctx, x, y, size, size, moduleSize * 1.5);
-      ctx.fill();
-      ctx.fillStyle = style.bgColor;
-      roundRect(ctx, innerX, innerY, inner, inner, moduleSize);
-      ctx.fill();
-      ctx.fillStyle = style.fgColor;
-      roundRect(ctx, dotX, dotY, dot, dot, moduleSize * 0.7);
-      ctx.fill();
-      break;
-    case 'dot':
-      ctx.beginPath();
-      ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = style.bgColor;
-      ctx.beginPath();
-      ctx.arc(innerX + inner/2, innerY + inner/2, inner/2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = style.fgColor;
-      ctx.beginPath();
-      ctx.arc(dotX + dot/2, dotY + dot/2, dot/2, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    case 'classy':
-      ctx.beginPath();
-      ctx.moveTo(x + size/2, y);
-      ctx.lineTo(x + size, y + size/2);
-      ctx.lineTo(x + size/2, y + size);
-      ctx.lineTo(x, y + size/2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = style.bgColor;
-      ctx.beginPath();
-      ctx.moveTo(innerX + inner/2, innerY);
-      ctx.lineTo(innerX + inner, innerY + inner/2);
-      ctx.lineTo(innerX + inner/2, innerY + inner);
-      ctx.lineTo(innerX, innerY + inner/2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = style.fgColor;
-      ctx.beginPath();
-      ctx.arc(dotX + dot/2, dotY + dot/2, dot/2, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-  }
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  r = Math.min(r, w/2, h/2);
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-// ===== Diagnóstico =====
-function updateDiagnostics(qr, data) {
-  const moduleCount = qr.getModuleCount();
-  const version = Math.floor((moduleCount - 17) / 4);
-  const bytes = new Blob([data]).size;
-  const type = types.find(t => t.id === state.type);
-  const capacities = {
-    L: [17, 32, 53, 78, 106, 134, 154, 192, 230, 271, 321, 367, 425, 458, 520, 586, 644, 718, 792, 858, 929, 1003, 1091, 1171, 1273, 1367, 1465, 1528, 1628, 1732, 1840, 1952, 2068, 2188, 2303, 2431, 2563, 2699, 2809, 2953],
-    M: [14, 26, 42, 62, 84, 106, 122, 152, 180, 213, 251, 287, 331, 362, 412, 450, 504, 560, 624, 666, 711, 779, 857, 911, 997, 1059, 1125, 1190, 1264, 1370, 1452, 1538, 1628, 1722, 1809, 1911, 1989, 2099, 2213, 2331],
-    Q: [11, 20, 32, 46, 60, 74, 86, 108, 130, 151, 177, 203, 241, 258, 292, 322, 364, 394, 442, 482, 509, 565, 611, 661, 715, 751, 805, 868, 908, 982, 1030, 1112, 1168, 1228, 1283, 1351, 1423, 1499, 1579, 1663],
-    H: [7, 14, 24, 34, 44, 58, 64, 84, 98, 119, 137, 155, 177, 194, 220, 250, 280, 310, 338, 382, 403, 439, 461, 511, 535, 593, 625, 658, 698, 742, 790, 842, 898, 958, 983, 1051, 1093, 1139, 1219, 1273]
-  };
-  const maxCap = capacities[state.errorLevel][Math.min(version - 1, 39)] || 2000;
-  const pct = Math.min(100, (bytes / maxCap) * 100);
-  document.getElementById('d-type').textContent = type.name;
-  document.getElementById('d-version').textContent = version;
-  document.getElementById('d-dims').innerHTML = `${moduleCount}<small>×${moduleCount} módulos</small>`;
-  document.getElementById('d-error').innerHTML = `${state.errorLevel}<small>${{L:'7%',M:'15%',Q:'25%',H:'30%'}[state.errorLevel]}</small>`;
-  document.getElementById('d-bytes').innerHTML = `${bytes}<small>B</small>`;
-  document.getElementById('d-mode').textContent = getMode(data);
-  const fill = document.getElementById('cap-fill');
-  fill.style.width = pct + '%';
-  fill.className = 'capacity-bar-fill' + (pct > 90 ? ' danger' : pct > 70 ? ' warn' : '');
-  document.getElementById('cap-pct').textContent = pct.toFixed(1) + '%';
-}
-
-function getMode(data) {
-  if (/^[0-9]+$/.test(data)) return 'Numérico';
-  if (/^[0-9A-Z $%*+\-./:]+$/.test(data)) return 'Alfanumérico';
-  return 'Byte';
-}
-
-// ===== Export =====
-function exportPNG() {
-  const canvas = document.getElementById('qr-canvas');
-  const link = document.createElement('a');
-  link.download = `qr-${state.type}-${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  toast('PNG descargado · ' + canvas.width + '×' + canvas.height);
-}
-
-function exportSVG() {
-  if (!currentQR) return;
-  const qr = currentQR;
-  const moduleCount = qr.getModuleCount();
-  // Usamos un tamaño fijo para exportación (alta resolución)
-  const size = 1200;
-  const margin = size * 0.08;
-  const moduleSize = (size - margin * 2) / moduleCount;
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
-  
-  // Fondo
-  if (state.style.backgroundImage) {
-    svg += `<image href="${state.style.backgroundImage}" x="0" y="0" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice"/>`;
-  } else {
-    svg += `<rect width="${size}" height="${size}" fill="${state.style.bgColor}"/>`;
-  }
-  
-  // Definir patrón para módulos si hay textura
-  let modulePatternDef = '';
-  if (state.style.moduleImage) {
-    const patternId = 'modulePattern';
-    svg += `<defs><pattern id="${patternId}" width="${moduleSize}" height="${moduleSize}" patternUnits="userSpaceOnUse"><image href="${state.style.moduleImage}" x="0" y="0" width="${moduleSize}" height="${moduleSize}" preserveAspectRatio="none"/></pattern></defs>`;
-    modulePatternDef = `url(#${patternId})`;
-  }
-  
-  // Módulos de datos
-  for (let r = 0; r < moduleCount; r++) {
-    for (let c = 0; c < moduleCount; c++) {
-      if (qr.isDark(r, c) && !isFinderArea(r, c, moduleCount)) {
-        const fill = modulePatternDef || state.style.fgColor;
-        svg += moduleToSVG(margin + c * moduleSize, margin + r * moduleSize, moduleSize, state.style.moduleStyle, fill);
-      }
+      updateIndicator(tabName);
+      loadPDF(tabName);
     }
-  }
-  
-  // Finder patterns
-  svg += finderToSVG(margin, margin, moduleSize, state.style);
-  svg += finderToSVG(margin + (moduleCount - 7) * moduleSize, margin, moduleSize, state.style);
-  svg += finderToSVG(margin, margin + (moduleCount - 7) * moduleSize, moduleSize, state.style);
-  
-  // Logo
-  if (state.style.logo) {
-    const logoSize = size * (state.style.logoSize / 100);
-    const x = (size - logoSize) / 2;
-    const y = (size - logoSize) / 2;
-    const padding = logoSize * 0.1;
-    const r = logoSize * 0.08;
-    svg += `<rect x="${x - padding}" y="${y - padding}" width="${logoSize + padding*2}" height="${logoSize + padding*2}" rx="${r}" fill="${state.style.bgColor}"/>`;
-    svg += `<image href="${state.style.logo}" x="${x}" y="${y}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet"/>`;
-  }
-  
-  svg += `</svg>`;
-  
-  const blob = new Blob([svg], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.download = `qr-${state.type}-${Date.now()}.svg`;
-  link.href = url;
-  link.click();
-  URL.revokeObjectURL(url);
-  toast('SVG descargado · vectorial');
-}
 
-function moduleToSVG(x, y, size, style, fill) {
-  const padding = size * 0.05;
-  const s = size - padding * 2;
-  switch(style) {
-    case 'square':
-      return `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${fill}"/>`;
-    case 'rounded':
-      return `<rect x="${x+padding}" y="${y+padding}" width="${s}" height="${s}" rx="${size*0.3}" fill="${fill}"/>`;
-    case 'dot':
-      return `<circle cx="${x+size/2}" cy="${y+size/2}" r="${size*0.42}" fill="${fill}"/>`;
-    case 'classy':
-      return `<path d="M${x+size/2},${y+padding} L${x+size-padding},${y+size/2} L${x+size/2},${y+size-padding} L${x+padding},${y+size/2} Z" fill="${fill}"/>`;
-  }
-  return '';
-}
-
-function finderToSVG(x, y, moduleSize, style) {
-  const size = moduleSize * 7;
-  const inner = moduleSize * 5;
-  const innerX = x + moduleSize;
-  const innerY = y + moduleSize;
-  const dot = moduleSize * 3;
-  const dotX = x + moduleSize * 2;
-  const dotY = y + moduleSize * 2;
-  const fg = style.fgColor;
-  const bg = style.bgColor;
-  switch(style.cornerStyle) {
-    case 'square':
-      return `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${fg}"/><rect x="${innerX}" y="${innerY}" width="${inner}" height="${inner}" fill="${bg}"/><rect x="${dotX}" y="${dotY}" width="${dot}" height="${dot}" fill="${fg}"/>`;
-    case 'rounded':
-      return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${moduleSize*1.5}" fill="${fg}"/><rect x="${innerX}" y="${innerY}" width="${inner}" height="${inner}" rx="${moduleSize}" fill="${bg}"/><rect x="${dotX}" y="${dotY}" width="${dot}" height="${dot}" rx="${moduleSize*0.7}" fill="${fg}"/>`;
-    case 'dot':
-      return `<circle cx="${x+size/2}" cy="${y+size/2}" r="${size/2}" fill="${fg}"/><circle cx="${innerX+inner/2}" cy="${innerY+inner/2}" r="${inner/2}" fill="${bg}"/><circle cx="${dotX+dot/2}" cy="${dotY+dot/2}" r="${dot/2}" fill="${fg}"/>`;
-    case 'classy':
-      return `<path d="M${x+size/2},${y} L${x+size},${y+size/2} L${x+size/2},${y+size} L${x},${y+size/2} Z" fill="${fg}"/><path d="M${innerX+inner/2},${innerY} L${innerX+inner},${innerY+inner/2} L${innerX+inner/2},${innerY+inner} L${innerX},${innerY+inner/2} Z" fill="${bg}"/><circle cx="${dotX+dot/2}" cy="${dotY+dot/2}" r="${dot/2}" fill="${fg}"/>`;
-  }
-  return '';
-}
-
-function copyContent() {
-  const data = getDataString();
-  navigator.clipboard.writeText(data).then(() => toast('Contenido copiado al portapapeles'))
-    .catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = data;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); toast('Contenido copiado'); } catch(e) { toast('No se pudo copiar', 'error'); }
-      document.body.removeChild(ta);
+    // Event listeners
+    tabs.forEach(t => {
+      t.addEventListener('click', () => setActiveTab(t.dataset.tab));
     });
-}
 
-function saveProject() {
-  const project = JSON.stringify(state);
-  const blob = new Blob([project], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.download = `qr-project-${Date.now()}.json`;
-  link.href = url;
-  link.click();
-  URL.revokeObjectURL(url);
-  toast('Proyecto guardado · JSON');
-}
+    window.addEventListener('load', () => {
+      setActiveTab('food'); // carga inicial
+    });
 
-// ===== Toast =====
-function toast(msg, type = 'success') {
-  const wrap = document.getElementById('toast-wrap');
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(() => {
-    el.style.animation = 'toastOut 0.3s ease forwards';
-    setTimeout(() => el.remove(), 300);
-  }, 2500);
-}
-
-// ===== Arranque =====
-init();
-</script>
+    window.addEventListener('resize', () => updateIndicator(currentTab));
+  </script>
 </body>
 </html>
