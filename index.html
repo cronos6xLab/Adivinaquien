@@ -339,6 +339,12 @@ button:focus-visible{outline-offset:-2px}
           <input type="file" id="bg-image-input" accept="image/*" style="display:none">
         </div>
 
+        <!-- Control de opacidad de imagen de fondo -->
+        <div class="field" id="bg-opacity-field" style="display:none; margin-top:16px">
+          <label class="field-label" for="bg-opacity-range">Opacidad del fondo: <span id="bg-opacity-value">100%</span></label>
+          <input type="range" id="bg-opacity-range" min="0" max="100" value="100" step="1" style="width:100%">
+        </div>
+
         <!-- Textura para módulos -->
         <div class="field-label" style="margin-top:20px">Textura para módulos (opcional)</div>
         <div class="logo-upload" id="module-image-upload">
@@ -464,6 +470,7 @@ const state = {
     cornerStyle: 'square',
     logo: null,
     backgroundImage: null,
+    backgroundOpacity: 1,   // Nueva propiedad
     moduleImage: null,
     logoSize: 22
   },
@@ -709,6 +716,14 @@ function bindEvents() {
     if (e.dataTransfer.files[0]) handleBackgroundFile(e.dataTransfer.files[0]);
   });
 
+  // Background opacity slider
+  const bgOpacityRange = document.getElementById('bg-opacity-range');
+  bgOpacityRange.addEventListener('input', () => {
+    state.style.backgroundOpacity = parseInt(bgOpacityRange.value) / 100;
+    document.getElementById('bg-opacity-value').textContent = bgOpacityRange.value + '%';
+    renderQR();
+  });
+
   // Module texture upload
   const moduleUpload = document.getElementById('module-image-upload');
   const moduleInput = document.getElementById('module-image-input');
@@ -771,6 +786,8 @@ function handleBackgroundFile(file) {
     img.onload = () => { backgroundImageObj = img; renderQR(); };
     img.src = e.target.result;
     renderBackgroundPreview(file);
+    // Mostrar control de opacidad
+    document.getElementById('bg-opacity-field').style.display = 'block';
     toast('Imagen de fondo cargada');
   };
   reader.readAsDataURL(file);
@@ -866,6 +883,8 @@ function resetBackgroundUpload() {
     <input type="file" id="bg-image-input" accept="image/*" style="display:none">
   `;
   document.getElementById('bg-image-input').addEventListener('change', e => { if (e.target.files[0]) handleBackgroundFile(e.target.files[0]); });
+  // Ocultar control de opacidad
+  document.getElementById('bg-opacity-field').style.display = 'none';
 }
 
 function renderModulePreview(file) {
@@ -968,7 +987,6 @@ function drawCanvas(qr) {
   const rect = container.getBoundingClientRect();
   const containerWidth = rect.width;
   const containerHeight = rect.height;
-  // Margen interno fijo de 32px (16px por lado) para respetar el borde decorativo
   const marginInside = 32;
   const displaySize = Math.max(80, Math.min(containerWidth, containerHeight) - marginInside);
   const dpr = window.devicePixelRatio || 1;
@@ -981,9 +999,12 @@ function drawCanvas(qr) {
   const ctx = canvas.getContext('2d');
   const size = canvas.width;
   
-  // Fondo: usar imagen si existe, si no color
+  // Fondo con opacidad
   if (backgroundImageObj) {
+    ctx.save();
+    ctx.globalAlpha = state.style.backgroundOpacity;
     ctx.drawImage(backgroundImageObj, 0, 0, size, size);
+    ctx.restore();
   } else {
     ctx.fillStyle = state.style.bgColor;
     ctx.fillRect(0, 0, size, size);
@@ -993,7 +1014,6 @@ function drawCanvas(qr) {
   const margin = size * 0.08;
   const moduleSize = (size - margin * 2) / moduleCount;
   
-  // Preparar patrón para módulos si hay textura
   let modulePattern = null;
   if (moduleImageObj) {
     const patternCanvas = document.createElement('canvas');
@@ -1004,7 +1024,6 @@ function drawCanvas(qr) {
     modulePattern = ctx.createPattern(patternCanvas, 'repeat');
   }
 
-  // Módulos de datos
   for (let r = 0; r < moduleCount; r++) {
     for (let c = 0; c < moduleCount; c++) {
       if (qr.isDark(r, c) && !isFinderArea(r, c, moduleCount)) {
@@ -1013,12 +1032,10 @@ function drawCanvas(qr) {
     }
   }
   
-  // Finder patterns
   drawFinder(ctx, margin, margin, moduleSize, state.style);
   drawFinder(ctx, margin + (moduleCount - 7) * moduleSize, margin, moduleSize, state.style);
   drawFinder(ctx, margin, margin + (moduleCount - 7) * moduleSize, moduleSize, state.style);
   
-  // Logo
   if (logoImage) {
     const logoSize = size * (state.style.logoSize / 100);
     const x = (size - logoSize) / 2;
@@ -1200,7 +1217,7 @@ function exportSVG() {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
   
   if (state.style.backgroundImage) {
-    svg += `<image href="${state.style.backgroundImage}" x="0" y="0" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice"/>`;
+    svg += `<image href="${state.style.backgroundImage}" x="0" y="0" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice" opacity="${state.style.backgroundOpacity}"/>`;
   } else {
     svg += `<rect width="${size}" height="${size}" fill="${state.style.bgColor}"/>`;
   }
